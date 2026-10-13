@@ -557,7 +557,7 @@ $("#tile-books").textContent = DATA.books.length + " كتب";
 $("#tile-terms").textContent = DATA.terms.length + " مفردة تراثية";
 
 /* library */
-const COVERS = new Set(["shatharat1","shatharat2","aja","anwar","darebestan","khurbut","kharmanji"]);
+const COVERS = new Set(["shatharat1","shatharat2","aja","anwar","darebestan","khurbut","kharmanji","anwar-en"]);
 function coverHtml(b){ return COVERS.has(b.id) ? `<span class="cover has-img" style="background:${b.color}"><img src="assets/covers/${b.id}.jpg" alt="غلاف كتاب ${esc(b.title)}" loading="lazy" decoding="async"></span>` : `<span class="cover" style="background:${b.color}">${esc(b.title)}</span>`; }
 let bookCat = "all";
 function renderBooks(){
