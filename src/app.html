@@ -244,7 +244,7 @@ audio{width:100%;height:40px}
 <script>
 (function(){
   var sp = document.getElementById("splash"), t0 = Date.now(), done = false;
-  try{ var fc = JSON.parse(localStorage.getItem("rh-father") || "null"); if(fc && fc.p){
+  try{ var fc = JSON.parse(localStorage.getItem("rh-father") || "null") || {p: "assets/father-1.jpg", t: "على خُطى أبي"}; if(fc && fc.p){
     var wrap = document.createElement("div"); wrap.className = "sp-pair";
     var fi = document.createElement("img"); fi.className = "sp-father"; fi.src = fc.p; fi.alt = "";
     var me = sp.querySelector(".sp-photo"); sp.insertBefore(wrap, me); wrap.appendChild(fi); wrap.appendChild(me);
@@ -1159,7 +1159,7 @@ const SB_URL = "https://ftnqvnpcioqllguwzzua.supabase.co", SB_KEY = "sb_publisha
 let SB = null;
 function sbClient(){ if(!SB && window.supabase && window.supabase.createClient){ try{ SB = window.supabase.createClient(SB_URL, SB_KEY); }catch(e){} } return SB; }
 function waitSB(ms){ ms = ms || 10000; return new Promise(res => { const t0 = Date.now(); (function chk(){ if(sbClient()) return res(SB); if(Date.now()-t0 > ms) return res(null); setTimeout(chk, 150); })(); }); }
-const mediaSrc = p => MEDIA_LOCAL[p] || (/^(https?:|blob:|data:)/.test(p) ? p : SB_URL + "/storage/v1/object/public/media/" + p.split("/").map(encodeURIComponent).join("/"));
+const mediaSrc = p => MEDIA_LOCAL[p] || (/^(https?:|blob:|data:|assets\/)/.test(p) ? p : SB_URL + "/storage/v1/object/public/media/" + p.split("/").map(encodeURIComponent).join("/"));
 function cloudErr(e, fallback){
   const m = String((e && (e.message || e.error)) || ""), st = Number(e && (e.statusCode || e.status));
   let code = fallback || "upstream_error";
@@ -1182,7 +1182,7 @@ const CLOUD = {
     const rows = [["terms", c.terms], ["proverbs", c.proverbs], ["ignored", c.ignored || DATA.ignored], ["media", c.media || DATA.media]].map(([key, value]) => ({key, value, updated_at: now}));
     const r = await sb.from("kv").upsert(rows);
     if(r.error) throw cloudErr(r.error);
-    const gone = del.filter(x => x && !/^(https?:|blob:|data:)/.test(x));
+    const gone = del.filter(x => x && !/^(https?:|blob:|data:|assets\/)/.test(x));
     if(gone.length){ try{ await st.remove(gone); }catch(e){} }
   }
 };
@@ -1484,7 +1484,8 @@ $("#terms").addEventListener("click", e => {
 
 /* ===== «إلى أبي»: tribute to the father, from whom the writer inherited the love of heritage ===== */
 const FATHER_DEFAULT = {name: "", dedication: "في مجالسه سمعتُ الحكاية الأولى، ومنه ورثتُ حبّ التراث", quote: "", photos: []};
-const father = () => Object.assign({}, FATHER_DEFAULT, (DATA.media || {}).father || {});
+const FATHER_BUILTIN = (DATA.media || {}).father || null;   /* photos shipped with the app */
+const father = () => Object.assign({}, FATHER_DEFAULT, (DATA.media || {}).father || FATHER_BUILTIN || {});
 function fatherCache(){ try{ const f = father(); if(f.photos.length) localStorage.setItem("rh-father", JSON.stringify({p: mediaSrc(f.photos[0]), t: "على خُطى أبي"})); else localStorage.removeItem("rh-father"); }catch(e){} }
 function renderFather(){
   const f = father(), box = $("#father"); if(!box) return;
