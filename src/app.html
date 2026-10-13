@@ -176,6 +176,12 @@ audio{width:100%;height:40px}
 .vid{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .vid video{width:100%;max-width:100%;border-radius:12px;background:#000;aspect-ratio:16/9}
 .vid h3{font-size:18px}
+.vthumb{position:relative;display:block;border-radius:12px;overflow:hidden;aspect-ratio:16/9;background:linear-gradient(135deg,#2F6B66,#1E4A46);text-decoration:none}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.vthumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#F3E7CF;font-size:15px;padding-top:70px;background:repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0 10px,transparent 10px 20px)}
+.vthumb .pl{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.vthumb .pl svg{margin-inline-start:4px}
+.vthumb .hn{position:absolute;bottom:8px;inset-inline-end:8px;background:rgba(0,0,0,.6);color:#fff;font-size:12.5px;padding:3px 8px;border-radius:8px}
 .rec-btn{background:var(--coral);border-color:var(--coral);color:#fff;display:inline-flex;align-items:center;gap:8px}.rec-btn .rec-dot{width:10px;height:10px;border-radius:50%;background:#fff}.rec-btn.on .rec-dot{animation:recp 1s infinite}@keyframes recp{50%{opacity:.25}}
 /* «إلى أبي»: old photos, sepia, slightly tilted like a family album */
 .father{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;background:linear-gradient(180deg,#FBF6EC,#F3E9D6);border:1px solid #E6D6B8;border-radius:22px;padding:22px 18px;color:#3B2F22}
@@ -460,7 +466,8 @@ audio{width:100%;height:40px}
 <div id="sheet" class="sheet-back" dir="rtl" lang="ar" hidden></div>
 <div id="pop" class="pop" dir="rtl" lang="ar" role="dialog" aria-live="polite" hidden></div>
 <input type="file" id="file-audio" accept="audio/*" hidden>
-<input type="file" id="file-video" accept="video/*" hidden></template>
+<input type="file" id="file-video" accept="video/*" hidden>
+<input type="file" id="file-img" accept="image/*" hidden></template>
 <script type="application/json" id="d-terms">__TERMS_JSON__</script>
 <script type="application/json" id="d-proverbs">__PROVERBS_JSON__</script>
 <script type="application/json" id="d-ignored">__IGNORED_JSON__</script>
@@ -1226,6 +1233,7 @@ let PLAYER = null;
 function playAudio(p){ try{ if(PLAYER){ PLAYER.pause(); } PLAYER = new Audio(mediaSrc(p)); PLAYER.play().catch(() => toast("تعذّر تشغيل التسجيل")); }catch(e){ toast("تعذّر تشغيل التسجيل"); } }
 const MAX_BYTES = 50 * 1024 * 1024;
 const EXT = {"audio/mpeg":"mp3","audio/mp3":"mp3","audio/mp4":"m4a","audio/x-m4a":"m4a","audio/m4a":"m4a","audio/aac":"aac","audio/webm":"webm","audio/ogg":"ogg","audio/wav":"wav","audio/x-wav":"wav","audio/3gpp":"3gp","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov","video/3gpp":"3gp"};
+function shrinkImage(f, max){ return new Promise((res, rej) => { const u = URL.createObjectURL(f), im = new Image(); im.onload = () => { const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)); const cv = document.createElement("canvas"); cv.width = Math.round(im.naturalWidth*k); cv.height = Math.round(im.naturalHeight*k); cv.getContext("2d").drawImage(im, 0, 0, cv.width, cv.height); URL.revokeObjectURL(u); cv.toBlob(b => b ? res(b) : rej(), "image/jpeg", .85); }; im.onerror = () => { URL.revokeObjectURL(u); rej(); }; im.src = u; }); }
 function fileType(f, kind){
   let t = (f.type || "").toLowerCase();
   if(!t){ const e = (f.name.split(".").pop() || "").toLowerCase(); t = ({mp3:"audio/mpeg",m4a:"audio/mp4",aac:"audio/aac",wav:"audio/wav",ogg:"audio/ogg",webm:kind+"/webm",mp4:kind+"/mp4",mov:"video/quicktime","3gp":kind+"/3gpp"})[e] || (kind==="audio" ? "audio/mp4" : "video/mp4"); }
@@ -1374,6 +1382,9 @@ $("#rd-story").addEventListener("click", e => {
 });
 /* videos */
 const hostName = u => { try{ const h = new URL(u).hostname.replace(/^www\./,""); return /youtu/.test(h) ? "يوتيوب" : /facebook|fb\.watch/.test(h) ? "فيسبوك" : /instagram/.test(h) ? "إنستغرام" : h; }catch(e){ return ""; } };
+const ytId = u => { try{ const x = new URL(u); if(/youtu\.be$/.test(x.hostname)) return x.pathname.slice(1).split("/")[0]; if(/youtube\.com$/.test(x.hostname)){ if(x.searchParams.get("v")) return x.searchParams.get("v"); const m = x.pathname.match(/\/(shorts|embed|live)\/([^/?#]+)/); if(m) return m[2]; } }catch(e){} return ""; };
+const vidThumb = v => v.thumb ? mediaSrc(v.thumb) : (v.url && ytId(v.url) ? `https://i.ytimg.com/vi/${ytId(v.url)}/hqdefault.jpg` : "");
+const PLAY_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
 function renderVideos(){
   const vids = (DATA.media.videos || []);
   $("#vid-count").textContent = vids.length + (vids.length===1 ? " فيديو" : " فيديوهات");
@@ -1382,7 +1393,8 @@ function renderVideos(){
   $("#vids").innerHTML = vids.length ? vids.map((v,i) => `<article class="vid">
       <h3>${esc(v.title)}</h3>
       ${v.desc ? `<p class="muted" style="font-size:15px">${esc(v.desc)}</p>` : ""}
-      ${v.file ? `<video controls preload="metadata" playsinline src="${esc(mediaSrc(v.file))}"></video>` : ""}
+      ${v.file ? `<video controls preload="metadata" playsinline${vidThumb(v) ? ` poster="${esc(vidThumb(v))}"` : ""} src="${esc(mediaSrc(v.file))}${/^blob:/.test(mediaSrc(v.file)) ? "" : "#t=0.1"}"></video>` : ""}
+      ${v.url && !v.file ? `<a class="vthumb" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="مشاهدة «${esc(v.title)}» على ${esc(hostName(v.url) || "الموقع")}">${vidThumb(v) ? `<img src="${esc(vidThumb(v))}" alt="" loading="lazy">` : `<span class="ph">${esc(v.title)}</span>`}<span class="pl">${PLAY_SVG}</span><span class="hn">${esc(hostName(v.url) || "")}</span></a>` : ""}
       ${v.url ? `<a class="btn" href="${esc(v.url)}" target="_blank" rel="noopener">مشاهدة على ${esc(hostName(v.url) || "الموقع")}</a>` : ""}
       ${CAN_EDIT ? `<div class="term-actions"><button class="mini" type="button" data-vedit="${i}">تعديل</button><button class="mini danger" type="button" data-vdel="${i}">حذف</button></div>` : ""}
     </article>`).join("") : `<p class="empty">لم تُضف فيديوهات بعد.</p>`;
@@ -1397,6 +1409,7 @@ function openVideoForm(ix){
     <div class="field"><label for="vf-d">وصف قصير <small>(اختياري)</small></label><textarea id="vf-d" placeholder="عمّ يتحدّث الفيديو؟">${esc(v.desc||"")}</textarea></div>
     <div class="field"><label for="vf-u">رابط الفيديو <small>(يوتيوب أو فيسبوك أو غيرهما)</small></label><input id="vf-u" dir="ltr" inputmode="url" value="${esc(v.url||"")}" placeholder="https://www.youtube.com/watch?v=..."><small>الطريقة الأفضل للفيديوهات الطويلة: ارفعها على قناة الكاتب في يوتيوب وضع رابطها هنا.</small></div>
     <div class="field"><label>أو ملف فيديو قصير <small>(حتى 50 ميغابايت، ويُعرض داخل التطبيق)</small></label><button class="btn ghost" type="button" id="vf-pick">${v.file ? "استبدال ملف الفيديو" : "اختيار ملف فيديو"}</button><span class="muted" id="vf-info" style="font-size:13px">${v.file ? "يوجد ملف فيديو مرفوع لهذا العنصر." : ""}</span></div>
+    <div class="field"><label>صورة الفيديو <small>(اختياري – تظهر قبل التشغيل. فيديوهات يوتيوب تأخذ صورتها تلقائياً)</small></label><div class="btn-row"><button class="btn ghost" type="button" id="vf-tpick">${v.thumb ? "استبدال الصورة" : "اختيار صورة"}</button>${v.thumb ? `<button class="btn ghost" type="button" id="vf-tdel">إزالة الصورة</button>` : ""}</div><img id="vf-tprev" alt="" style="max-width:100%;border-radius:10px;${vidThumb(v) ? "" : "display:none"}" src="${esc(vidThumb(v))}"></div>
     <p class="form-msg" id="vf-msg" aria-live="polite"></p>
     <div class="btn-row"><button class="btn" type="submit" id="vf-save">حفظ الفيديو</button><button class="btn ghost" type="button" data-close>إلغاء</button></div>
   </form>`;
@@ -1406,6 +1419,13 @@ function openVideoForm(ix){
     if(f.size > MAX_BYTES){ $("#vf-msg").textContent = "حجم الفيديو " + (f.size/1048576).toFixed(1) + " ميغابايت، والحدّ الأقصى 50 ميغابايت. للفيديوهات الأطول ارفعها على يوتيوب وضع الرابط."; return; }
     picked = f; if(url) URL.revokeObjectURL(url); url = URL.createObjectURL(f); $("#vf-info").textContent = f.name + " · " + (f.size/1048576).toFixed(1) + " ميغابايت"; $("#vf-msg").textContent = ""; };
   $("#vf-pick").addEventListener("click", () => input.click());
+  let thumbBlob = null, thumbUrl = null, thumbDel = false;
+  const tin = $("#file-img");
+  tin.onchange = () => { const f = tin.files && tin.files[0]; tin.value = ""; if(!f) return;
+    shrinkImage(f, 960).then(b => { thumbBlob = b; thumbDel = false; if(thumbUrl) URL.revokeObjectURL(thumbUrl); thumbUrl = URL.createObjectURL(b); const im = $("#vf-tprev"); im.src = thumbUrl; im.style.display = ""; $("#vf-msg").textContent = ""; })
+      .catch(() => { $("#vf-msg").textContent = "تعذّرت قراءة الصورة. جرّب صورة أخرى بصيغة JPG أو PNG."; }); };
+  $("#vf-tpick").addEventListener("click", () => tin.click());
+  if($("#vf-tdel")) $("#vf-tdel").addEventListener("click", () => { thumbDel = true; thumbBlob = null; const im = $("#vf-tprev"); im.style.display = "none"; im.removeAttribute("src"); });
   $("#vf").addEventListener("submit", e => {
     e.preventDefault();
     const title = $("#vf-t").value.trim(), desc = $("#vf-d").value.trim(); let link = $("#vf-u").value.trim();
@@ -1418,6 +1438,9 @@ function openVideoForm(ix){
     const extra = {}, local = {};
     if(picked){ const type = fileType(picked, "video"); const path = `video/${entry.id}-${Date.now().toString(36)}.${EXT[type] || "mp4"}`; entry.file = path; extra[path] = {content: picked, contentType: type}; local[path] = url; if(v.file) extra[v.file] = null; }
     else if(v.file) entry.file = v.file;
+    if(thumbBlob){ const tp = `video/thumb-${entry.id}-${Date.now().toString(36)}.jpg`; entry.thumb = tp; extra[tp] = {content: thumbBlob, contentType: "image/jpeg"}; local[tp] = thumbUrl; if(v.thumb) extra[v.thumb] = null; }
+    else if(thumbDel){ if(v.thumb) extra[v.thumb] = null; }
+    else if(v.thumb) entry.thumb = v.thumb;
     if(ix!=null) c.media.videos[ix] = entry; else c.media.videos.unshift(entry);
     if(Object.keys(extra).length) saveMedia(c, extra, $("#vf-save"), $("#vf-msg"), ix!=null ? "حُفظ تعديل الفيديو" : "أُضيف الفيديو", local);
     else saveMedia(c, {}, $("#vf-save"), $("#vf-msg"), ix!=null ? "حُفظ تعديل الفيديو" : "أُضيف الفيديو");
@@ -1429,7 +1452,7 @@ function openVideoDelete(ix){
     <p class="muted">سيُحذف الفيديو من التطبيق لجميع المستخدمين.</p><p class="form-msg" id="vd-msg" aria-live="polite"></p>
     <div class="btn-row"><button class="btn danger" type="button" id="vd-yes">حذف الفيديو</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></div>`;
   sh.hidden = false; $("#vd-yes").focus();
-  $("#vd-yes").addEventListener("click", () => { const c = cloneContent(); c.media.videos.splice(ix,1); saveMedia(c, v.file ? {[v.file]: null} : {}, $("#vd-yes"), $("#vd-msg"), "حُذف الفيديو"); });
+  $("#vd-yes").addEventListener("click", () => { const c = cloneContent(); c.media.videos.splice(ix,1); saveMedia(c, Object.assign({}, v.file ? {[v.file]: null} : {}, v.thumb ? {[v.thumb]: null} : {}), $("#vd-yes"), $("#vd-msg"), "حُذف الفيديو"); });
 }
 $("#vid-add").addEventListener("click", () => openVideoForm(null));
 $("#vids").addEventListener("click", e => {
