@@ -1537,10 +1537,10 @@ function renderFather(){
   if(box.hidden){ box.innerHTML = ""; return; }
   box.innerHTML = (has ? `<div class="album">${f.photos.slice(0,2).map(p => `<img src="${esc(mediaSrc(p))}" alt="${esc(f.name || "والد الكاتب")}" loading="lazy">`).join("")}</div>` : `<p class="muted">لم تُضف صور الوالد بعد.</p>`)
     + `<h2>إلى أبي</h2><blockquote>${esc(f.dedication)}</blockquote>`
-    + (f.name ? `<div class="fname">${esc(f.name)}</div>` : "")
+    + `<div class="fname">رائد عبدالرحمن حجازي</div>`
     + (f.quote ? `<p class="fquote">${esc(f.quote)}</p>` : "");
 }
-function dedHtml(){ const f = father(); if(!f.photos.length) return ""; return `<div class="ded"><img src="${esc(mediaSrc(f.photos[0]))}" alt=""><span><b style="color:#8A3A33">إلى أبي…</b> ${esc(f.dedication)}${f.name ? `<br><small style="color:#8A3A33">${esc(f.name)}</small>` : ""}</span></div>`; }
+function dedHtml(){ const f = father(); if(!f.photos.length) return ""; return `<div class="ded"><img src="${esc(mediaSrc(f.photos[0]))}" alt=""><span><b style="color:#8A3A33">إلى أبي…</b> ${esc(f.dedication)}<br><small style="color:#8A3A33">رائد عبدالرحمن حجازي</small></span></div>`; }
 
 /* ===== install the app on this device ===== */
 (function(){
