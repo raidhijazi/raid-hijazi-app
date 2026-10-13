@@ -1502,61 +1502,20 @@ $("#terms").addEventListener("click", e => {
 /* ===== «إلى أبي»: tribute to the father, from whom the writer inherited the love of heritage ===== */
 const FATHER_DEFAULT = {name: "", dedication: "في مجالسه سمعتُ الحكاية الأولى، ومنه ورثتُ حبّ التراث", quote: "", photos: []};
 const FATHER_BUILTIN = (DATA.media || {}).father || null;   /* photos shipped with the app */
-const father = () => Object.assign({}, FATHER_DEFAULT, (DATA.media || {}).father || FATHER_BUILTIN || {});
+/* fixed content: changed only by updating data/media.json, never from the editor */
+const father = () => Object.assign({}, FATHER_DEFAULT, FATHER_BUILTIN || {});
 function fatherCache(){ try{ const f = father(); if(f.photos.length) localStorage.setItem("rh-father", JSON.stringify({p: mediaSrc(f.photos[0]), t: "على خُطى أبي"})); else localStorage.removeItem("rh-father"); }catch(e){} }
 function renderFather(){
   const f = father(), box = $("#father"); if(!box) return;
   const has = f.photos.length > 0;
-  box.hidden = !has && !CAN_EDIT;
+  box.hidden = !has;
   if(box.hidden){ box.innerHTML = ""; return; }
   box.innerHTML = (has ? `<div class="album">${f.photos.slice(0,2).map(p => `<img src="${esc(mediaSrc(p))}" alt="${esc(f.name || "والد الكاتب")}" loading="lazy">`).join("")}</div>` : `<p class="muted">لم تُضف صور الوالد بعد.</p>`)
     + `<h2>إلى أبي</h2><blockquote>${esc(f.dedication)}</blockquote>`
     + (f.name ? `<div class="fname">${esc(f.name)}</div>` : "")
-    + (f.quote ? `<p class="fquote">${esc(f.quote)}</p>` : "")
-    + (CAN_EDIT ? `<button class="btn ghost" type="button" id="father-edit">تعديل قسم «إلى أبي»</button>` : "");
+    + (f.quote ? `<p class="fquote">${esc(f.quote)}</p>` : "");
 }
 function dedHtml(){ const f = father(); if(!f.photos.length) return ""; return `<div class="ded"><img src="${esc(mediaSrc(f.photos[0]))}" alt=""><span><b style="color:#8A3A33">إلى أبي…</b> ${esc(f.dedication)}${f.name ? `<br><small style="color:#8A3A33">${esc(f.name)}</small>` : ""}</span></div>`; }
-/* shrink a photo before upload so it loads fast on phones */
-function shrinkImage(file, max){
-  return new Promise(res => {
-    const url = URL.createObjectURL(file), img = new Image();
-    img.onload = () => { try{ const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = Math.round(img.width*k); c.height = Math.round(img.height*k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); c.toBlob(b => res(b || file), "image/jpeg", .86); }catch(e){ res(file); } };
-    img.onerror = () => res(file); img.src = url;
-  });
-}
-function openFatherForm(){
-  const f = father(), sh = $("#sheet"); const picked = [null, null], urls = [null, null], remove = [false, false];
-  sh.innerHTML = `<form class="sheet" id="ff" role="dialog" aria-modal="true" aria-labelledby="ff-h" novalidate>
-    <h3 id="ff-h" style="font-size:20px">قسم «إلى أبي»</h3>
-    <div class="field"><label>صورتا الوالد</label><div class="thumbs">${[0,1].map(i => `<figure><img id="ff-img${i}" src="${f.photos[i] ? esc(mediaSrc(f.photos[i])) : ""}" alt="" ${f.photos[i] ? "" : "hidden"}><button class="mini" type="button" data-ffpick="${i}">${f.photos[i] ? "استبدال" : "اختيار"} الصورة ${i ? "الثانية" : "الأولى"}</button>${f.photos[i] ? `<button class="mini danger" type="button" data-ffdel="${i}">حذف</button>` : ""}</figure>`).join("")}</div><small>تظهر بلون بنّي خفيف كالصور القديمة.</small></div>
-    <div class="field"><label for="ff-n">اسم الوالد <small>(اختياري)</small></label><input id="ff-n" value="${esc(f.name)}" placeholder="مثال: المرحوم عبدالرحمن حجازي"></div>
-    <div class="field"><label for="ff-d">نص الإهداء</label><textarea id="ff-d">${esc(f.dedication)}</textarea></div>
-    <div class="field"><label for="ff-q">سطر من الكاتب عن والده <small>(اختياري)</small></label><textarea id="ff-q" placeholder="مثال: كنت أرافقه إلى المجالس والدواوين، وهناك سمعت الحكايات الأولى.">${esc(f.quote)}</textarea></div>
-    <input type="file" id="ff-file" accept="image/*" hidden>
-    <p class="form-msg" id="ff-msg" aria-live="polite"></p>
-    <div class="btn-row"><button class="btn" type="submit" id="ff-save">حفظ</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></form>`;
-  sh.hidden = false;
-  let slot = 0; const input = $("#ff-file");
-  sh.querySelectorAll("[data-ffpick]").forEach(b => b.addEventListener("click", () => { slot = Number(b.dataset.ffpick); input.click(); }));
-  sh.querySelectorAll("[data-ffdel]").forEach(b => b.addEventListener("click", () => { const i = Number(b.dataset.ffdel); remove[i] = true; picked[i] = null; $("#ff-img"+i).hidden = true; b.remove(); }));
-  input.onchange = async () => { const file = input.files && input.files[0]; input.value = ""; if(!file) return;
-    if(!/^image\//.test(file.type || "image/")){ $("#ff-msg").textContent = "اختر ملف صورة."; return; }
-    const blob = await shrinkImage(file, 1400); picked[slot] = blob; remove[slot] = false; if(urls[slot]) URL.revokeObjectURL(urls[slot]); urls[slot] = URL.createObjectURL(blob);
-    const im = $("#ff-img"+slot); im.src = urls[slot]; im.hidden = false; $("#ff-msg").textContent = ""; };
-  $("#ff").addEventListener("submit", e => {
-    e.preventDefault();
-    const c = cloneContent(); const nf = Object.assign({}, f, {name: $("#ff-n").value.trim(), dedication: $("#ff-d").value.trim() || FATHER_DEFAULT.dedication, quote: $("#ff-q").value.trim()});
-    const extra = {}, local = {}; const photos = [f.photos[0] || null, f.photos[1] || null];
-    [0,1].forEach(i => {
-      if(picked[i]){ const path = `img/father-${i+1}-${Date.now().toString(36)}.jpg`; extra[path] = {content: picked[i], contentType: picked[i].type || "image/jpeg"}; local[path] = urls[i]; if(photos[i]) extra[photos[i]] = null; photos[i] = path; }
-      else if(remove[i] && photos[i]){ extra[photos[i]] = null; photos[i] = null; }
-    });
-    nf.photos = photos.filter(Boolean);
-    c.media.father = nf;
-    saveMedia(c, extra, $("#ff-save"), $("#ff-msg"), "حُفظ قسم «إلى أبي»", local);
-  });
-}
-document.addEventListener("click", e => { if(e.target.closest("#father-edit")) openFatherForm(); });
 
 /* ===== install the app on this device ===== */
 (function(){
