@@ -221,8 +221,8 @@ audio{width:100%;height:40px}
 .splash .sp-father{border-color:rgba(91,70,48,.35)!important}
 /* the writer's books, shown like a bookshop window: four on the back step, three in front */
 .sp-books{position:absolute;left:0;right:0;bottom:calc(46px + env(safe-area-inset-bottom,0px));height:190px;pointer-events:none}
-.sp-books .row{position:absolute;left:0;right:0;display:flex;justify-content:center;align-items:flex-end}
-.sp-books .back{bottom:88px;gap:5px}.sp-books .front{bottom:0;gap:8px}
+.sp-books .row{position:absolute;left:0;right:0;margin:0 auto;padding:0 14px;max-width:560px;display:flex;justify-content:space-between;align-items:flex-end}
+.sp-books .back{bottom:88px;padding:0 34px}.sp-books .front{bottom:0}
 .sp-books .bk{position:relative;display:block}
 .sp-books .bk img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:2px 5px 5px 2px;box-shadow:0 12px 20px rgba(60,40,20,.32),0 2px 4px rgba(60,40,20,.22)}
 .sp-books .bk::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,255,255,.2),transparent);border-radius:2px 0 0 2px;z-index:1}
@@ -232,7 +232,7 @@ audio{width:100%;height:40px}
 .sp-books .front .bk{width:64px;height:94px}.sp-books .front .bk.hero{width:76px;height:113px;z-index:2}
 .sp-books .front .bk:first-child{transform:rotate(-3deg)}.sp-books .front .bk:last-child{transform:rotate(3deg)}
 .sp-books .front .bk img{-webkit-box-reflect:below 3px linear-gradient(transparent 78%,rgba(255,255,255,.3))}
-.sp-books .floor{position:absolute;left:10%;right:10%;bottom:-14px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(90,60,30,.3),transparent)}
+.sp-books .floor{position:absolute;left:4%;right:4%;bottom:-14px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(90,60,30,.3),transparent)}
 @media (max-height:700px){.splash{gap:10px;padding-top:calc(3vh + 22px + env(safe-area-inset-top,0px))}.splash .sp-pair,.splash .sp-photo{width:104px;height:104px}.splash .sp-father{width:92px!important;height:92px!important}.splash .sp-logo{width:200px}.sp-books{transform:scale(.9);transform-origin:50% 100%}}
 @media (max-height:580px){.sp-books{transform:scale(.8)}}
 @media (prefers-reduced-motion:no-preference){
