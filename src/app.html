@@ -175,6 +175,13 @@ audio{width:100%;height:40px}
 .vid video{width:100%;max-width:100%;border-radius:12px;background:#000;aspect-ratio:16/9}
 .vid h3{font-size:18px}
 .rec-btn{background:var(--coral);border-color:var(--coral);color:#fff;display:inline-flex;align-items:center;gap:8px}.rec-btn .rec-dot{width:10px;height:10px;border-radius:50%;background:#fff}.rec-btn.on .rec-dot{animation:recp 1s infinite}@keyframes recp{50%{opacity:.25}}
+.install-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.install-card img{border-radius:12px;flex-shrink:0}
+.install-card .ic-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.install-card .ic-body span{font-size:13.5px;color:var(--muted)}
+.install-card .btn{min-height:42px;padding:0 16px;flex-shrink:0}
+.install-card .ic-x{width:34px;height:34px;flex-shrink:0}
+.ios-steps{display:flex;flex-direction:column;gap:10px;margin:0;padding-inline-start:22px;font-size:16px}
 .play-btn{display:inline-flex;align-items:center;gap:6px}
 .tagname{font-size:12px;font-weight:700;padding:1px 8px;border-radius:8px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top,0px));z-index:30;background:var(--teal);color:var(--teal-ink);padding:10px 18px;border-radius:12px;font-weight:700}
@@ -229,6 +236,7 @@ audio{width:100%;height:40px}
     <!-- HOME -->
     <section class="view" id="view-home" aria-label="الرئيسية">
       <div class="section" style="gap:22px">
+        <div class="install-card" data-install-card hidden><img src="assets/icon-192.png" alt="" width="48" height="48"><div class="ic-body"><b>نزّل التطبيق على جهازك</b><span>ليظهر على الشاشة الرئيسية ويُفتح بلمسة واحدة.</span></div><button class="btn" type="button" data-install>تنزيل</button><button class="icon-btn ic-x" type="button" data-install-x aria-label="إخفاء">×</button></div>
         <article class="proverb" aria-live="polite">
           <div class="eyebrow"><span>مثلٌ اليوم</span><span id="pv-date"></span></div>
           <p class="text" id="pv-text"></p>
@@ -379,6 +387,7 @@ audio{width:100%;height:40px}
           </div>
         </div>
         <p class="muted" style="font-size:12px;text-align:center">يستعين التطبيق في اكتشاف الكلمات غير الفصيحة بقائمة كلمات مستمدّة من مشروع wordfreq (رخصة CC BY-SA 4.0).</p>
+        <button class="btn" type="button" data-install data-install-about hidden>تنزيل التطبيق على هذا الجهاز</button>
         <p class="muted" id="copyline" style="font-size:13px;text-align:center;user-select:none">جميع الحقوق محفوظة للكاتب رائد عبدالرحمن حجازي</p>
       </div>
     </section>
@@ -1414,6 +1423,38 @@ $("#terms").addEventListener("click", e => {
   const sb = await waitSB(); if(!sb) return;
   try{ const r = await sb.auth.getSession(); if(r && r.data && r.data.session){ ART = CLOUD; enableEditor(); } }catch(e){}
   loadCloud();
+})();
+
+/* ===== install the app on this device ===== */
+(function(){
+  let deferred = null;
+  const standalone = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  const ua = navigator.userAgent || "";
+  const isIOS = /iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  const isInAppBrowser = /FBAN|FBAV|Instagram|Line\/|WhatsApp|Snapchat|TikTok/i.test(ua);
+  const dismissed = () => { try{ return localStorage.getItem("rh-install-x")==="1"; }catch(e){ return false; } };
+  function refresh(){
+    const can = !standalone() && (deferred || isIOS || isInAppBrowser);
+    document.querySelectorAll("[data-install-card]").forEach(el => el.hidden = !can || dismissed());
+    document.querySelectorAll("[data-install-about]").forEach(el => el.hidden = !can);
+  }
+  function sheet(title, body){
+    const sh = $("#sheet");
+    sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="in-h"><h3 id="in-h" style="font-size:20px">${title}</h3>${body}<div class="btn-row"><button class="btn" type="button" data-close>حسناً</button></div></div>`;
+    sh.hidden = false;
+  }
+  window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; refresh(); });
+  window.addEventListener("appinstalled", () => { deferred = null; refresh(); toast("نُزّل التطبيق على جهازك"); });
+  document.addEventListener("click", async e => {
+    if(e.target.closest("[data-install-x]")){ try{ localStorage.setItem("rh-install-x","1"); }catch(err){} refresh(); return; }
+    if(!e.target.closest("[data-install]")) return;
+    if(deferred){ deferred.prompt(); try{ await deferred.userChoice; }catch(err){} deferred = null; refresh(); return; }
+    if(isInAppBrowser) return sheet("افتح الرابط في المتصفح أولاً", `<p>هذه الصفحة مفتوحة داخل تطبيق آخر لا يسمح بالتنزيل. اضغط النقاط الثلاث أو رمز المشاركة في أعلى الشاشة، واختر <b>«فتح في المتصفح»</b> (Chrome أو Safari)، ثم اضغط زر «تنزيل» من هناك.</p>`);
+    if(isIOS) return sheet("تنزيل التطبيق على iPhone", `<ol class="ios-steps"><li>تأكّد أن الصفحة مفتوحة في <b>Safari</b>.</li><li>اضغط زر <b>المشاركة</b> (المربع الذي يخرج منه سهم ⬆️) أسفل الشاشة.</li><li>اختر <b>«إضافة إلى الشاشة الرئيسية»</b>.</li><li>اضغط <b>«إضافة»</b>.</li></ol>`);
+    sheet("تنزيل التطبيق", `<p>اضغط النقاط الثلاث ⋮ في المتصفح، واختر <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.</p>`);
+  });
+  refresh();
+  if(window.matchMedia) try{ matchMedia("(display-mode: standalone)").addEventListener("change", refresh); }catch(e){}
 })();
 try{ const m = sessionStorage.getItem("rh-toast"); if(m){ sessionStorage.removeItem("rh-toast"); setTimeout(() => toast(m), 400); } }catch(e){}
 
