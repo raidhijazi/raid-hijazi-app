@@ -105,6 +105,7 @@ p{margin:0}
 .sheet{background:var(--surface);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-height:88vh;overflow:auto}
 .sheet .top{display:flex;gap:16px;align-items:flex-start}
 .sheet .cover{width:84px;height:120px;font-size:14px}
+.cover.has-img{padding:0;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.18)}.cover.has-img img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
 .btn{min-height:48px;padding:0 18px;border-radius:14px;border:0;background:var(--teal);color:var(--teal-ink);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
 .btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
@@ -556,12 +557,14 @@ $("#tile-books").textContent = DATA.books.length + " كتب";
 $("#tile-terms").textContent = DATA.terms.length + " مفردة تراثية";
 
 /* library */
+const COVERS = new Set(["shatharat1","shatharat2","aja","anwar","darebestan","khurbut","kharmanji"]);
+function coverHtml(b){ return COVERS.has(b.id) ? `<span class="cover has-img" style="background:${b.color}"><img src="assets/covers/${b.id}.jpg" alt="غلاف كتاب ${esc(b.title)}" loading="lazy" decoding="async"></span>` : `<span class="cover" style="background:${b.color}">${esc(b.title)}</span>`; }
 let bookCat = "all";
 function renderBooks(){
   $("#book-chips").innerHTML = BOOK_CATS.map(([id,l]) => `<button class="chip" type="button" data-bcat="${id}" aria-pressed="${id===bookCat}">${l}</button>`).join("");
   const list = DATA.books.filter(b => bookCat==="all" || b.cat===bookCat);
   $("#books").innerHTML = list.map(b => `<button class="row-card" type="button" data-book="${b.id}">
-      <span class="cover" style="background:${b.color}">${esc(b.title)}</span>
+      ${coverHtml(b)}
       <span class="body"><b>${esc(b.title)}</b><small>${esc(b.desc)}</small><span style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge${b.cat==='satire'?' coral':''}">${catLabel(BOOK_CATS,b.cat)}</span>${b.readable ? `<span class="badge">متاح للقراءة · ${storyCount(b.id)} ${b.unit==="فصل" ? "فصلاً" : "قصة"}</span>` : `<span class="badge coral">قريباً</span>`}</span></span>
     </button>`).join("");
 }
@@ -572,7 +575,7 @@ function openBook(id){
   const b = DATA.books.find(x=>x.id===id); if(!b) return;
   const sh = $("#sheet");
   sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="bk-title">
-    <div class="top"><span class="cover" style="background:${b.color}">${esc(b.title)}</span>
+    <div class="top">${coverHtml(b)}
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h3 id="bk-title" style="font-size:20px">${esc(b.title)}</h3><span class="badge${b.cat==='satire'?' coral':''}">${catLabel(BOOK_CATS,b.cat)}</span><span class="muted">رائد عبدالرحمن حجازي</span></div></div>
     <p>${esc(b.desc)}</p>
     ${b.readable ? `<p class="muted" style="font-size:14px">${storyCount(b.id)} ${b.unit==="فصل" ? "فصلاً" : "قصة ومقالة"}${b.meta ? " · " + esc(b.meta) : ""}</p>
@@ -781,7 +784,7 @@ function renderCont(){
   const readable = DATA.books.filter(x=>x.readable).length;
   $("#cont-h").textContent = started ? "تابع القراءة" : "اقرأ الآن";
   $("#cont").dataset.book = id;
-  $("#cont").innerHTML = `<span class="cover" style="background:${b.color}">${esc(b.title)}</span>
+  $("#cont").innerHTML = `${coverHtml(b)}
     <span class="body"><b>${started ? esc(s.title) : esc(b.title)}</b>
     <small class="muted">${started ? "من كتاب " + esc(b.title) : readable + " كتب كاملة للقراءة داخل التطبيق"}</small>
     <span class="bar" aria-hidden="true"><i style="width:${Math.round(done/total*100)}%"></i></span>
