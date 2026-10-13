@@ -8,6 +8,9 @@ for key, f in [('shatharat1','shatharat1'),('shatharat2','shatharat2'),('aja','a
 j = lambda x: json.dumps(x, ensure_ascii=False, separators=(',',':')).replace('<','\\u003c')
 b64 = lambda p, m: 'data:%s;base64,%s' % (m, base64.b64encode(open(p,'rb').read()).decode())
 s = open('src/app.html', encoding='utf-8').read()
+import hashlib, glob
+covv = hashlib.md5(b''.join(open(f,'rb').read() for f in sorted(glob.glob('assets/covers/*.jpg')))).hexdigest()[:8]
+s = s.replace('__COVV__', covv)
 for ph, val in [('__BOOKS_JSON__', j(B)), ('__TERMS_JSON__', j(ld('data/terms.json'))), ('__PROVERBS_JSON__', j(ld('data/proverbs.json'))),
                 ('__IGNORED_JSON__', j(ld('data/ignored.json'))), ('__LEX__', ' '.join(ld('data/lex.json'))), ('__SUGG_JSON__', j(ld('data/sugg.json'))),
                 ('__MEDIA_JSON__', j(ld('data/media.json'))), ('__LOGO__', b64('assets/logo-crop.png','image/png')),
