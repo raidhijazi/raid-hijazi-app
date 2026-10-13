@@ -232,8 +232,8 @@ audio{width:100%;height:40px}
   var sp = document.getElementById("splash"), t0 = Date.now(), done = false;
   function hide(){ if(done) return; done = true; sp.classList.add("out"); setTimeout(function(){ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 700); }
   sp.addEventListener("click", hide);
-  window.addEventListener("load", function(){ setTimeout(hide, Math.max(0, 7000 - (Date.now() - t0))); });
-  setTimeout(hide, 10000);
+  window.addEventListener("load", function(){ setTimeout(hide, Math.max(0, 5000 - (Date.now() - t0))); });
+  setTimeout(hide, 8000);
 })();
 </script>
 <template id="shell"><div class="shell" dir="rtl" lang="ar">
