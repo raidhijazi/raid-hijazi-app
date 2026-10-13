@@ -780,8 +780,8 @@ function renderPendingBar(){
     if(!n){ bar.hidden = true; bar.innerHTML = ""; return; }
     bar.hidden = false;
     bar.innerHTML = `<b>لديك ${n===1 ? "تعديل واحد محفوظ" : n===2 ? "تعديلان محفوظان" : n<=10 ? n + " تعديلات محفوظة" : n + " تعديلاً محفوظاً"} على هذا الجهاز لم يُنشر للجميع بعد.</b>
-      <span class="muted" style="font-size:14px">${ART ? "اضغط «نشر للجميع» لإتاحتها لكلّ القرّاء." : "سجّل الدخول بحساب المحرّر ثم اضغط «نشر للجميع» لإتاحتها لكلّ القرّاء."}</span>
-      <div class="btn-row">${ART ? `<button class="btn" type="button" data-pb="pub">نشر للجميع</button>` : ""}<button class="btn ghost" type="button" data-pb="copy">نسخ التعديلات</button></div>
+      <span class="muted" style="font-size:14px">${ART ? "تعذّر حفظها تلقائياً، غالباً بسبب انقطاع الإنترنت. اضغط «نشر للجميع» لإعادة المحاولة." : "سجّل الدخول بحساب المحرّر ثم اضغط «نشر للجميع» لإتاحتها لكلّ القرّاء."}</span>
+      <div class="btn-row">${ART ? `<button class="btn" type="button" data-pb="pub">نشر للجميع</button>` : ""}</div>
       <p class="form-msg" aria-live="polite"></p>`;
   });
 }
@@ -999,7 +999,22 @@ function stageTerms(newTerms, msg){
   setPending(c); DATA.terms = newTerms;
   rebuildTermRe(); renderTerms();
   if(CAND){ const g = glossaryKeys(); CAND = CAND.filter(x => !g.has(x.key) && !x.forms.some(f => g.has(nz(f)))); }
-  renderCands(); renderPendingBar(); if(msg) toast(msg);
+  renderCands(); if(msg) toast(msg); syncNow();
+}
+/* every approval or exclusion is saved to the cloud right away; rapid clicks are merged into one save */
+let SAVING = false, DIRTY = false;
+async function syncNow(){
+  if(!ART){ renderPendingBar(); return; }
+  if(SAVING){ DIRTY = true; return; }
+  SAVING = true;
+  try{
+    do{ DIRTY = false; const c = {terms: DATA.terms.slice(), proverbs: DATA.proverbs.slice(), ignored: DATA.ignored.slice(), media: DATA.media}; await ART.publish(c, {}); rebase(c); }
+    while(DIRTY);
+    clearPending();
+  }catch(err){
+    setPending({terms: DATA.terms, proverbs: DATA.proverbs, ignored: DATA.ignored});
+    toast("لم يُحفظ التعديل: " + mediaError(err));
+  }finally{ SAVING = false; renderPendingBar(); }
 }
 function renderBulk(){
   const box = $("#cand-bulk"); box.innerHTML = ""; box.hidden = true; return;   /* bulk approve/exclude removed: each word is decided one by one */
@@ -1028,7 +1043,7 @@ function setIgnored(list, msg){
   const c = {terms: DATA.terms, proverbs: DATA.proverbs, ignored: list};
   setPending(c); DATA.ignored = list;
   if(CAND){ const s = new Set(list.map(nz)); CAND.forEach(x => x.ignored = s.has(x.key) || x.forms.some(f => s.has(nz(f)))); }
-  renderCands(); renderPendingBar(); toast(msg);
+  renderCands(); toast(msg); syncNow();
 }
 $("#cand-open").addEventListener("click", () => {
   const w = $("#cand-wrap"); w.hidden = !w.hidden;
@@ -1052,7 +1067,7 @@ $("#cand-wrap").addEventListener("click", e => {
   const r = e.target.closest("[data-cr]");
   if(r){ const c = find(r.dataset.cr); RD.hl = nz(c.ex.raw); openReader(c.ex.book, c.ex.si); return; }
   const i = e.target.closest("[data-ci]");
-  if(i){ const c = find(i.dataset.ci); setIgnored([...DATA.ignored, c.key], `استُبعدت «${c.word}» على هذا الجهاز`); return; }
+  if(i){ const c = find(i.dataset.ci); setIgnored([...DATA.ignored, c.key], `استُبعدت «${c.word}»`); return; }
   const u = e.target.closest("[data-cu]");
   if(u){ const k = u.dataset.cu; const c = find(k); setIgnored(DATA.ignored.filter(x => nz(x)!==k && !(c && c.forms.some(f => nz(f)===nz(x)))), `أُعيدت «${c ? c.word : k}» إلى المرشّحات`); }
 });
