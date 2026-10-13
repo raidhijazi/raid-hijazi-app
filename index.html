@@ -192,6 +192,23 @@ audio{width:100%;height:40px}
 .vid video{width:100%;max-width:100%;border-radius:12px;background:#000;aspect-ratio:16/9}
 .vid h3{font-size:18px}
 .rec-btn{background:var(--coral);border-color:var(--coral);color:#fff;display:inline-flex;align-items:center;gap:8px}.rec-btn .rec-dot{width:10px;height:10px;border-radius:50%;background:#fff}.rec-btn.on .rec-dot{animation:recp 1s infinite}@keyframes recp{50%{opacity:.25}}
+/* «إلى أبي»: old photos, sepia, slightly tilted like a family album */
+.father{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;background:linear-gradient(180deg,#FBF6EC,#F3E9D6);border:1px solid #E6D6B8;border-radius:22px;padding:22px 18px;color:#3B2F22}
+.father h2{color:#8A3A33;font-size:22px}
+.father .album{position:relative;display:flex;justify-content:center;min-height:150px;width:100%}
+.father .album img{width:150px;height:190px;object-fit:cover;background:#fff;padding:8px 8px 26px;border-radius:4px;box-shadow:0 10px 24px rgba(59,47,34,.28);filter:sepia(.45) contrast(1.02)}
+.father .album img:nth-child(1){transform:rotate(-5deg);margin-inline-end:-26px;z-index:1}
+.father .album img:nth-child(2){transform:rotate(4deg);margin-top:16px}
+.father .album img:only-child{transform:rotate(-2deg);margin:0}
+.father blockquote{margin:0;font-family:var(--font-display);font-size:21px;line-height:1.8;color:#3B2F22}
+.father .fname{font-weight:700;color:#8A3A33}
+.father .fquote{font-size:15px;color:#6B5A45}
+.ded{display:flex;gap:12px;align-items:center;background:#FBF6EC;border:1px solid #E6D6B8;border-radius:16px;padding:10px 12px;color:#3B2F22}
+.ded img{width:56px;height:56px;border-radius:50%;object-fit:cover;filter:sepia(.45);border:2px solid #E6D6B8;flex-shrink:0}
+.ded span{font-family:var(--font-display);font-size:16px;line-height:1.6}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap}
+.thumbs figure{margin:0;display:flex;flex-direction:column;gap:6px;align-items:center}
+.thumbs img{width:96px;height:120px;object-fit:cover;border-radius:6px;filter:sepia(.45);background:#eee}
 .install-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
 .install-card img{border-radius:12px;flex-shrink:0}
 .install-card .ic-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -210,12 +227,19 @@ audio{width:100%;height:40px}
 .splash .sp-photo{width:132px;height:132px;border-radius:50%;object-fit:cover;object-position:50% 30%;border:4px solid #F0948D;box-shadow:0 0 0 0 rgba(240,148,141,.55)}
 .splash .sp-logo{width:220px;max-width:70vw;background:#FFFFFF;border-radius:14px;padding:6px 12px}
 .splash .sp-tag{font-family:var(--font-display);font-size:19px;letter-spacing:.3px;opacity:.95}
+.splash .sp-pair{position:relative;width:132px;height:132px}
+.splash .sp-father{position:absolute;width:118px;height:118px;border-radius:50%;object-fit:cover;filter:sepia(.6) brightness(1.05);opacity:.55;top:-26px;inset-inline-start:-70px;border:3px solid rgba(251,246,236,.7)}
+.splash .sp-pair .sp-photo{position:relative}
+.splash .sp-heir{font-family:var(--font-display);font-size:16px;opacity:.85;margin-top:-6px}
 .splash .sp-skip{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));font-size:13px;opacity:.7}
 @media (prefers-reduced-motion:no-preference){
   .splash .sp-photo{animation:spIn .7s cubic-bezier(.2,.8,.2,1) both,spRing 1.6s .7s ease-out}
   .splash .sp-logo{animation:spUp .7s .35s cubic-bezier(.2,.8,.2,1) both}
   .splash .sp-tag{animation:spUp .7s .7s ease-out both}
   .splash .sp-skip{animation:spFade .5s 1.2s both}
+  .splash .sp-father{animation:spFather 1.4s .2s ease-out both}
+  .splash .sp-heir{animation:spUp .7s .55s ease-out both}
+  @keyframes spFather{from{opacity:0;transform:translateX(20px)}to{opacity:.55;transform:none}}
   @keyframes spIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
   @keyframes spUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
   @keyframes spFade{from{opacity:0}to{opacity:.7}}
@@ -237,6 +261,12 @@ audio{width:100%;height:40px}
 <script>
 (function(){
   var sp = document.getElementById("splash"), t0 = Date.now(), done = false;
+  try{ var fc = JSON.parse(localStorage.getItem("rh-father") || "null"); if(fc && fc.p){
+    var wrap = document.createElement("div"); wrap.className = "sp-pair";
+    var fi = document.createElement("img"); fi.className = "sp-father"; fi.src = fc.p; fi.alt = "";
+    var me = sp.querySelector(".sp-photo"); sp.insertBefore(wrap, me); wrap.appendChild(fi); wrap.appendChild(me);
+    var ln = document.createElement("div"); ln.className = "sp-heir"; ln.textContent = fc.t; sp.insertBefore(ln, sp.querySelector(".sp-logo"));
+  } }catch(e){}
   function hide(){ if(done) return; done = true; sp.classList.add("out"); setTimeout(function(){ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 700); }
   sp.addEventListener("click", hide);
   /* exactly five seconds on every device, counted from the moment the splash appears */
@@ -390,6 +420,7 @@ audio{width:100%;height:40px}
           <h1 style="font-size:24px">رائد عبدالرحمن حجازي</h1>
           <p class="muted">كاتب ساخر وباحث في التراث الأردني</p>
         </div>
+        <div class="father" id="father" hidden></div>
         <div class="prose">
           <p>نشأ في إربد، عروس الشمال، بين الحكايات الشعبية التي كانت تُروى في المجالس والدواوين التي رافق والده إليها، فتعلّق منذ صغره بالتراث وأهله.</p>
           <p>درس الآثار والبيئة، ويكتب قصصاً قصيرة تصوّر الحياة القديمة في شمال الأردن، ويستخرج منها الحِكَم بأسلوب يجمع الفكاهة إلى العمق، غايته أن تبقى ذاكرة الأجداد حاضرة لدى الأجيال القادمة، داخل الأردن وفي المهجر.</p>
@@ -679,7 +710,7 @@ function showStory(){
   const sk = id + ":" + RD.i, sa = (DATA.media.story || {})[sk];
   const audioHtml = sa ? `<div class="media-box"><span class="lbl">${b.ltr ? "Listen to this chapter" : "استمع إلى " + (b.unit==="فصل" ? "الفصل" : "القصة")}</span><audio controls preload="none" src="${esc(mediaSrc(sa))}"></audio></div>` : "";
   const edHtml = CAN_EDIT ? `<div class="term-actions"><button class="mini" type="button" data-saud="${sk}">${sa ? "استبدال التسجيل الصوتي" : "إضافة تسجيل صوتي " + (b.unit==="فصل" ? "لهذا الفصل" : "لهذه القصة")}</button>${sa ? `<button class="mini danger" type="button" data-sauddel="${sk}">حذف التسجيل</button>` : ""}</div>` : "";
-  $("#rd-story").innerHTML = `<h1>${esc(s.title)}</h1>${meta}${audioHtml}${edHtml}<div class="txt">${body}</div>`;
+  $("#rd-story").innerHTML = `${RD.i===0 && !b.ltr ? dedHtml() : ""}<h1>${esc(s.title)}</h1>${meta}${audioHtml}${edHtml}<div class="txt">${body}</div>`;
   $("#rd-pos").textContent = isIntro ? "مقدمة الكتاب" : `${unitWord} ${numOf(id,RD.i)} من ${storyCount(id)}`;
   $("#rd-prev").disabled = RD.i===0; $("#rd-prev").style.opacity = RD.i===0 ? .45 : 1;
   $("#rd-prev").textContent = b.unit==="فصل" ? "الفصل السابق" : "القصة السابقة";
@@ -694,7 +725,7 @@ function showStory(){
 }
 function showToc(){
   const id = RD.book, stories = BOOK_TEXT[id]; const p = getProg(id);
-  $("#rd-toc-list").innerHTML = stories.map((s,i) => `<button type="button" data-si="${i}" class="${p.read.includes(i)?'read':''} ${i===RD.i?'current':''}"><span class="n">${hasIntro(id)&&i===0?'—':numOf(id,i)}</span><span>${esc(s.title)}</span></button>`).join("");
+  $("#rd-toc-list").innerHTML = (bookOf(id).ltr ? "" : dedHtml()) + stories.map((s,i) => `<button type="button" data-si="${i}" class="${p.read.includes(i)?'read':''} ${i===RD.i?'current':''}"><span class="n">${hasIntro(id)&&i===0?'—':numOf(id,i)}</span><span>${esc(s.title)}</span></button>`).join("");
   $("#rd-toc").hidden = false; $("#rd-story-wrap").hidden = true; closePop();
   window.scrollTo({top:0});
 }
@@ -1181,7 +1212,7 @@ async function loadCloud(){
   rebase(c);
   const p = getPending();
   DATA.terms = p ? p.terms : c.terms; DATA.proverbs = p ? p.proverbs : c.proverbs; DATA.ignored = (p && p.ignored) || c.ignored; DATA.media = c.media;
-  rebuildTermRe(); renderTerms(); fixPvi(); renderProverb(); renderVideos(); renderPendingBar();
+  rebuildTermRe(); renderTerms(); fixPvi(); renderProverb(); renderVideos(); renderPendingBar(); renderFather(); fatherCache();
   CAND = null; if(!$("#cand-wrap").hidden) renderCands();
   if(!$("#view-reader").hidden && RD.book) showStory();
 }
@@ -1202,7 +1233,7 @@ function rebase(c){ PAGE = {terms: c.terms.slice(), proverbs: c.proverbs.slice()
 async function publishSite(c, extra){ await ART.publish(c, extra); rebase(c); return "files"; }
 function applySaved(c, okMsg){
   DATA.terms = c.terms; DATA.proverbs = c.proverbs; DATA.ignored = c.ignored || DATA.ignored; if(c.media) DATA.media = c.media;
-  rebuildTermRe(); renderTerms(); fixPvi(); renderProverb(); renderPendingBar(); renderVideos();
+  rebuildTermRe(); renderTerms(); fixPvi(); renderProverb(); renderPendingBar(); renderVideos(); renderFather(); fatherCache();
   CAND = null; if(!$("#cand-wrap").hidden) renderCands();
   if(!$("#view-reader").hidden && RD.book) showStory();
   closeSheet();
@@ -1400,8 +1431,8 @@ $("#vids").addEventListener("click", e => {
   const dl = e.target.closest("[data-vdel]"); if(dl) openVideoDelete(Number(dl.dataset.vdel));
 });
 /* editor mode: tap the rights line in «عن الكاتب» five times, then sign in with the editor account */
-function enableEditor(){ CAN_EDIT = true; $("#ed-tools").hidden = false; $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
-function disableEditor(){ CAN_EDIT = false; ART = null; $("#ed-tools").hidden = true; $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function enableEditor(){ CAN_EDIT = true; $("#ed-tools").hidden = false; setTimeout(renderFather, 0); $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function disableEditor(){ CAN_EDIT = false; ART = null; $("#ed-tools").hidden = true; setTimeout(renderFather, 0); $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
 function openLogin(){
   const sh = $("#sheet");
   sh.innerHTML = `<form class="sheet" id="lg" role="dialog" aria-modal="true" aria-labelledby="lg-h" novalidate>
@@ -1468,6 +1499,64 @@ $("#terms").addEventListener("click", e => {
   loadCloud();
 })();
 
+/* ===== «إلى أبي»: tribute to the father, from whom the writer inherited the love of heritage ===== */
+const FATHER_DEFAULT = {name: "", dedication: "في مجالسه سمعتُ الحكاية الأولى، ومنه ورثتُ حبّ التراث", quote: "", photos: []};
+const father = () => Object.assign({}, FATHER_DEFAULT, (DATA.media || {}).father || {});
+function fatherCache(){ try{ const f = father(); if(f.photos.length) localStorage.setItem("rh-father", JSON.stringify({p: mediaSrc(f.photos[0]), t: "على خُطى أبي"})); else localStorage.removeItem("rh-father"); }catch(e){} }
+function renderFather(){
+  const f = father(), box = $("#father"); if(!box) return;
+  const has = f.photos.length > 0;
+  box.hidden = !has && !CAN_EDIT;
+  if(box.hidden){ box.innerHTML = ""; return; }
+  box.innerHTML = (has ? `<div class="album">${f.photos.slice(0,2).map(p => `<img src="${esc(mediaSrc(p))}" alt="${esc(f.name || "والد الكاتب")}" loading="lazy">`).join("")}</div>` : `<p class="muted">لم تُضف صور الوالد بعد.</p>`)
+    + `<h2>إلى أبي</h2><blockquote>${esc(f.dedication)}</blockquote>`
+    + (f.name ? `<div class="fname">${esc(f.name)}</div>` : "")
+    + (f.quote ? `<p class="fquote">${esc(f.quote)}</p>` : "")
+    + (CAN_EDIT ? `<button class="btn ghost" type="button" id="father-edit">تعديل قسم «إلى أبي»</button>` : "");
+}
+function dedHtml(){ const f = father(); if(!f.photos.length) return ""; return `<div class="ded"><img src="${esc(mediaSrc(f.photos[0]))}" alt=""><span><b style="color:#8A3A33">إلى أبي…</b> ${esc(f.dedication)}${f.name ? `<br><small style="color:#8A3A33">${esc(f.name)}</small>` : ""}</span></div>`; }
+/* shrink a photo before upload so it loads fast on phones */
+function shrinkImage(file, max){
+  return new Promise(res => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => { try{ const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = Math.round(img.width*k); c.height = Math.round(img.height*k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); c.toBlob(b => res(b || file), "image/jpeg", .86); }catch(e){ res(file); } };
+    img.onerror = () => res(file); img.src = url;
+  });
+}
+function openFatherForm(){
+  const f = father(), sh = $("#sheet"); const picked = [null, null], urls = [null, null], remove = [false, false];
+  sh.innerHTML = `<form class="sheet" id="ff" role="dialog" aria-modal="true" aria-labelledby="ff-h" novalidate>
+    <h3 id="ff-h" style="font-size:20px">قسم «إلى أبي»</h3>
+    <div class="field"><label>صورتا الوالد</label><div class="thumbs">${[0,1].map(i => `<figure><img id="ff-img${i}" src="${f.photos[i] ? esc(mediaSrc(f.photos[i])) : ""}" alt="" ${f.photos[i] ? "" : "hidden"}><button class="mini" type="button" data-ffpick="${i}">${f.photos[i] ? "استبدال" : "اختيار"} الصورة ${i ? "الثانية" : "الأولى"}</button>${f.photos[i] ? `<button class="mini danger" type="button" data-ffdel="${i}">حذف</button>` : ""}</figure>`).join("")}</div><small>تظهر بلون بنّي خفيف كالصور القديمة.</small></div>
+    <div class="field"><label for="ff-n">اسم الوالد <small>(اختياري)</small></label><input id="ff-n" value="${esc(f.name)}" placeholder="مثال: المرحوم عبدالرحمن حجازي"></div>
+    <div class="field"><label for="ff-d">نص الإهداء</label><textarea id="ff-d">${esc(f.dedication)}</textarea></div>
+    <div class="field"><label for="ff-q">سطر من الكاتب عن والده <small>(اختياري)</small></label><textarea id="ff-q" placeholder="مثال: كنت أرافقه إلى المجالس والدواوين، وهناك سمعت الحكايات الأولى.">${esc(f.quote)}</textarea></div>
+    <input type="file" id="ff-file" accept="image/*" hidden>
+    <p class="form-msg" id="ff-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn" type="submit" id="ff-save">حفظ</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></form>`;
+  sh.hidden = false;
+  let slot = 0; const input = $("#ff-file");
+  sh.querySelectorAll("[data-ffpick]").forEach(b => b.addEventListener("click", () => { slot = Number(b.dataset.ffpick); input.click(); }));
+  sh.querySelectorAll("[data-ffdel]").forEach(b => b.addEventListener("click", () => { const i = Number(b.dataset.ffdel); remove[i] = true; picked[i] = null; $("#ff-img"+i).hidden = true; b.remove(); }));
+  input.onchange = async () => { const file = input.files && input.files[0]; input.value = ""; if(!file) return;
+    if(!/^image\//.test(file.type || "image/")){ $("#ff-msg").textContent = "اختر ملف صورة."; return; }
+    const blob = await shrinkImage(file, 1400); picked[slot] = blob; remove[slot] = false; if(urls[slot]) URL.revokeObjectURL(urls[slot]); urls[slot] = URL.createObjectURL(blob);
+    const im = $("#ff-img"+slot); im.src = urls[slot]; im.hidden = false; $("#ff-msg").textContent = ""; };
+  $("#ff").addEventListener("submit", e => {
+    e.preventDefault();
+    const c = cloneContent(); const nf = Object.assign({}, f, {name: $("#ff-n").value.trim(), dedication: $("#ff-d").value.trim() || FATHER_DEFAULT.dedication, quote: $("#ff-q").value.trim()});
+    const extra = {}, local = {}; const photos = [f.photos[0] || null, f.photos[1] || null];
+    [0,1].forEach(i => {
+      if(picked[i]){ const path = `img/father-${i+1}-${Date.now().toString(36)}.jpg`; extra[path] = {content: picked[i], contentType: picked[i].type || "image/jpeg"}; local[path] = urls[i]; if(photos[i]) extra[photos[i]] = null; photos[i] = path; }
+      else if(remove[i] && photos[i]){ extra[photos[i]] = null; photos[i] = null; }
+    });
+    nf.photos = photos.filter(Boolean);
+    c.media.father = nf;
+    saveMedia(c, extra, $("#ff-save"), $("#ff-msg"), "حُفظ قسم «إلى أبي»", local);
+  });
+}
+document.addEventListener("click", e => { if(e.target.closest("#father-edit")) openFatherForm(); });
+
 /* ===== install the app on this device ===== */
 (function(){
   let deferred = null;
@@ -1501,7 +1590,7 @@ $("#terms").addEventListener("click", e => {
 })();
 try{ const m = sessionStorage.getItem("rh-toast"); if(m){ sessionStorage.removeItem("rh-toast"); setTimeout(() => toast(m), 400); } }catch(e){}
 
-fixPvi(); renderProverb(); renderBooks(); renderTerms(); renderCont(); renderVideos();
+fixPvi(); renderProverb(); renderBooks(); renderTerms(); renderCont(); renderVideos(); renderFather(); fatherCache();
 try{ const w = sessionStorage.getItem("rh-show-term"); if(w){ sessionStorage.removeItem("rh-show-term"); const t = DATA.terms.find(x => x.w===w); if(t) setTimeout(() => showSavedTerm(t), 500); } }catch(e){}
 try{ if(sessionStorage.getItem("rh-tab-after")){ sessionStorage.removeItem("rh-tab-after"); store.set("rh-tab","glossary"); } }catch(e){}
 const hash = (location.hash||"").replace("#","");
