@@ -405,6 +405,7 @@ audio{width:100%;height:40px}
         </div>
         <p class="muted" style="font-size:12px;text-align:center">يستعين التطبيق في اكتشاف الكلمات غير الفصيحة بقائمة كلمات مستمدّة من مشروع wordfreq (رخصة CC BY-SA 4.0).</p>
         <button class="btn" type="button" data-install data-install-about hidden>تنزيل التطبيق على هذا الجهاز</button>
+        <div class="btn-row" id="ed-tools" hidden><button class="btn ghost" type="button" id="pw-change">تغيير كلمة مرور المحرّر</button><button class="btn ghost" type="button" id="ed-out">خروج من وضع المحرّر</button></div>
         <p class="muted" id="copyline" style="font-size:13px;text-align:center;user-select:none">جميع الحقوق محفوظة للكاتب رائد عبدالرحمن حجازي</p>
       </div>
     </section>
@@ -1399,8 +1400,8 @@ $("#vids").addEventListener("click", e => {
   const dl = e.target.closest("[data-vdel]"); if(dl) openVideoDelete(Number(dl.dataset.vdel));
 });
 /* editor mode: tap the rights line in «عن الكاتب» five times, then sign in with the editor account */
-function enableEditor(){ CAN_EDIT = true; $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
-function disableEditor(){ CAN_EDIT = false; ART = null; $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function enableEditor(){ CAN_EDIT = true; $("#ed-tools").hidden = false; $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function disableEditor(){ CAN_EDIT = false; ART = null; $("#ed-tools").hidden = true; $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
 function openLogin(){
   const sh = $("#sheet");
   sh.innerHTML = `<form class="sheet" id="lg" role="dialog" aria-modal="true" aria-labelledby="lg-h" novalidate>
@@ -1423,6 +1424,31 @@ function openLogin(){
     ART = CLOUD; enableEditor(); closeSheet(); toast("أهلاً بك، فُعّل وضع المحرّر"); go("glossary");
   });
 }
+function openPwChange(){
+  const sh = $("#sheet");
+  sh.innerHTML = `<form class="sheet" id="pw" role="dialog" aria-modal="true" aria-labelledby="pw-h" novalidate>
+    <h3 id="pw-h" style="font-size:20px">تغيير كلمة المرور</h3>
+    <div class="field"><label for="pw-1">كلمة المرور الجديدة</label><input id="pw-1" type="password" dir="ltr" autocomplete="new-password" required><small>ثمانية أحرف على الأقل.</small></div>
+    <div class="field"><label for="pw-2">أعد كتابتها للتأكيد</label><input id="pw-2" type="password" dir="ltr" autocomplete="new-password" required></div>
+    <p class="form-msg" id="pw-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn" type="submit" id="pw-go">حفظ كلمة المرور</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></form>`;
+  sh.hidden = false; $("#pw-1").focus();
+  $("#pw").addEventListener("submit", async e => {
+    e.preventDefault();
+    const a = $("#pw-1").value, b = $("#pw-2").value, msg = $("#pw-msg");
+    if(a.length < 8){ msg.textContent = "كلمة المرور قصيرة، اكتب ثمانية أحرف على الأقل."; return; }
+    if(a !== b){ msg.textContent = "كلمتا المرور غير متطابقتين."; return; }
+    const btn = $("#pw-go"); btn.disabled = true; btn.textContent = "جارٍ الحفظ…";
+    const sb = await waitSB(); let r = sb ? await sb.auth.updateUser({password: a}) : {error: {message: "network"}};
+    btn.disabled = false; btn.textContent = "حفظ كلمة المرور";
+    if(r.error){ msg.textContent = /same|different from the old/i.test(r.error.message) ? "هذه كلمة المرور الحالية نفسها، اختر كلمة مختلفة." : /reauth|recent/i.test(r.error.message) ? "لأسباب أمنية اخرج من وضع المحرّر وادخل من جديد، ثم غيّر كلمة المرور." : "تعذّر تغيير كلمة المرور. تأكّد من الإنترنت ثم أعد المحاولة."; return; }
+    closeSheet(); toast("تغيّرت كلمة المرور. استعملها في الدخول القادم.");
+  });
+}
+document.addEventListener("click", async e => {
+  if(e.target.closest("#pw-change")){ openPwChange(); return; }
+  if(e.target.closest("#ed-out")){ try{ const sb = await waitSB(3000); if(sb) await sb.auth.signOut(); }catch(err){} disableEditor(); toast("خرجتَ من وضع المحرّر"); }
+});
 let taps = 0, tapTimer = null;
 $("#copyline").addEventListener("click", async () => {
   taps++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { taps = 0; }, 2500);
