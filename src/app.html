@@ -1,0 +1,1371 @@
+<style id="css">
+/* Layout: a phone-first app shell — sticky logo bar, one scrolling view, fixed bottom tab bar; centered column up to 520px on wide screens */
+:root{
+  --bg:#EAF5F3; --surface:#FFFFFF; --surface-2:#F4FAF9; --line:#C9E3DF;
+  --ink:#1F2830; --muted:#4D5862; --teal:#336E6A; --teal-ink:#FFFFFF;
+  --coral:#B83C35; --coral-soft:#FBE4E2; --teal-soft:#DCEFEC;
+  --font-body: Calibri, "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --font-display: Calibri, "Noto Naskh Arabic", "Noto Sans Arabic", serif;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141B21; --surface:#1C252D; --surface-2:#222D36; --line:#2F3D48;
+  --ink:#E8F1F0; --muted:#A9B7BF; --teal:#5FA39D; --teal-ink:#0E1A19;
+  --coral:#F0948D; --coral-soft:#3A2526; --teal-soft:#1E3533; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141B21; --surface:#1C252D; --surface-2:#222D36; --line:#2F3D48;
+  --ink:#E8F1F0; --muted:#A9B7BF; --teal:#5FA39D; --teal-ink:#0E1A19;
+  --coral:#F0948D; --coral-soft:#3A2526; --teal-soft:#1E3533; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.7}
+button,input{font:inherit;color:inherit}
+a{color:var(--teal)}
+:focus-visible{outline:3px solid var(--coral);outline-offset:2px;border-radius:8px}
+.shell{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;background:var(--bg)}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar .logo{height:46px;width:auto;display:block}
+.logo-chip{background:#FFFFFF;border-radius:12px;padding:2px 6px;display:flex}
+.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 25%;border:2px solid var(--coral);display:block}
+.avatar-btn{padding:0;border:0;background:none;cursor:pointer;border-radius:50%}
+main{flex:1;padding:18px 16px 110px;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.35}
+h2{font-size:21px;color:var(--coral)}
+h3{font-size:17px}
+p{margin:0}
+.muted{color:var(--muted)}
+.section{display:flex;flex-direction:column;gap:12px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.linkbtn{background:none;border:0;color:var(--teal);font-weight:700;cursor:pointer;padding:6px 0;min-height:44px}
+
+/* proverb */
+.proverb{background:var(--teal);color:var(--teal-ink);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.proverb .eyebrow{font-size:13px;letter-spacing:.3px;opacity:.9;display:flex;justify-content:space-between;gap:8px}
+.proverb .text{font-family:var(--font-display);font-size:24px;font-weight:700;line-height:1.5}
+.proverb .meaning{font-size:15.5px;opacity:.95}
+.proverb .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.proverb .pv-src{font-size:14px;opacity:.9}
+.proverb .pv-tools{border-top:1px solid currentColor;padding-top:10px;opacity:.95}
+.pill-btn{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid currentColor;background:transparent;cursor:pointer;font-weight:700}
+.pill-btn.solid{background:var(--teal-ink);color:var(--teal);border-color:var(--teal-ink)}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:start;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:112px}
+.tile svg{color:var(--coral)}
+.tile b{font-size:16px}
+.tile span{font-size:13.5px;color:var(--muted)}
+
+/* list rows */
+.list{display:flex;flex-direction:column;gap:10px}
+.row-card{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;text-align:start;cursor:pointer;width:100%;text-decoration:none;color:var(--ink)}
+.row-card .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.row-card .body b{font-size:16px}
+.row-card .body small{color:var(--muted);font-size:13.5px;line-height:1.55}
+.cover{width:56px;height:80px;flex-shrink:0;border-radius:6px;color:#FFFFFF;display:flex;align-items:center;justify-content:center;text-align:center;padding:5px;font-family:var(--font-display);font-weight:700;font-size:11px;line-height:1.35;box-shadow:inset -4px 0 0 rgba(0,0,0,.18)}
+.badge{align-self:flex-start;font-size:12px;font-weight:700;padding:2px 9px;border-radius:9px;background:var(--teal-soft);color:var(--teal)}
+.badge.coral{background:var(--coral-soft);color:var(--coral)}
+.date{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+
+/* chips & search */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:40px;padding:0 15px;border-radius:20px;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--teal-ink);font-weight:700}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 14px;min-height:48px}
+.search input{flex:1;border:0;background:transparent;outline:none;min-width:0;font-size:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* glossary */
+.term{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.term-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.term-head b{font-family:var(--font-display);font-size:20px;color:var(--coral)}
+.term .en{direction:ltr;text-align:left;color:var(--muted);font-size:14.5px}
+.term .tag{font-size:12px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:24px 8px}
+
+/* detail sheet */
+.sheet-back{position:fixed;inset:0;background:rgba(10,16,20,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-height:88vh;overflow:auto}
+.sheet .top{display:flex;gap:16px;align-items:flex-start}
+.sheet .cover{width:84px;height:120px;font-size:14px}
+.btn{min-height:48px;padding:0 18px;border-radius:14px;border:0;background:var(--teal);color:var(--teal-ink);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row .btn{flex:1 1 140px}
+.note{background:var(--surface-2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--muted)}
+
+/* about */
+.about-hero{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.about-hero img.photo{width:150px;height:150px;border-radius:50%;object-fit:cover;object-position:50% 30%;border:4px solid var(--coral)}
+.about-hero .logo-big{width:240px;max-width:100%;background:#FFFFFF;border-radius:14px;padding:6px 10px}
+.prose{display:flex;flex-direction:column;gap:12px;font-size:16.5px}
+.socials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.social{min-height:48px;border:1px solid var(--line);background:var(--surface);border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--ink);font-weight:700}
+
+/* tab bar */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar .inner{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.tab{min-height:64px;border:0;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12.5px;color:var(--muted)}
+.tab[aria-current="page"]{color:var(--teal);font-weight:700}
+.tab svg{width:24px;height:24px}
+.view[hidden]{display:none}
+
+/* continue-reading card */
+.cont{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;cursor:pointer;width:100%;text-align:start}
+.cont .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--teal)}
+
+/* reader */
+.reader-top{display:flex;align-items:center;gap:8px}
+.icon-btn{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.reader-top .ttl{flex:1;min-width:0;display:flex;flex-direction:column}
+.reader-top .ttl b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.size-ctl{display:flex;gap:6px}
+.toc{display:flex;flex-direction:column;gap:6px}
+.toc button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);cursor:pointer;text-align:start}
+.toc button .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px;min-width:2.2em}
+.toc button.read .n::after{content:" ✓";color:var(--teal)}
+.toc button.current{border-color:var(--teal);background:var(--teal-soft)}
+.story{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 20px;display:flex;flex-direction:column;gap:14px}
+.story h1{font-size:26px;color:var(--coral)}
+.story .meta{color:var(--muted);font-size:13.5px}
+.story .txt{display:flex;flex-direction:column;gap:1em;font-size:var(--rs,19px);line-height:2;text-align:justify}
+.gl{all:unset;cursor:pointer;color:inherit;border-bottom:2px dotted var(--coral);text-decoration:none}
+.gl:hover{color:var(--coral)}
+.gl:focus-visible{outline:3px solid var(--coral)}
+.pager{display:flex;gap:10px}
+.pager .btn{flex:1}
+.pop{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(488px,calc(100% - 32px));z-index:15;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.pop .ph{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pop .ph b{font-size:19px;color:var(--coral)}
+mark{background:var(--coral-soft);color:var(--ink);border-radius:4px;padding:0 2px;box-shadow:inset 0 -2px 0 var(--coral)}
+.hit{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;text-align:start;width:100%}
+.hit .hh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.hit .hh b{font-size:16px}
+.hit .src{font-size:13px;color:var(--muted)}
+.hit .snip{font-size:15px;line-height:1.8;color:var(--ink)}
+.hit .snip[dir="ltr"]{text-align:left}
+.term .src{font-size:12.5px;color:var(--muted)}
+.term-actions{display:flex;gap:8px;margin-top:4px}
+.mini{min-height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer;font-weight:700}
+.mini.danger{color:var(--coral);border-color:var(--coral-soft)}
+.btn.danger{background:var(--coral);color:var(--surface)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700;font-size:14.5px}
+.field small{color:var(--muted);font-size:13px}
+.field input,.field textarea,.field select{min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:10px 12px;font-size:16px;color:var(--ink);width:100%}
+.field textarea{min-height:96px;resize:vertical;line-height:1.7}
+.form-msg{font-size:14px;color:var(--coral);min-height:1.2em}
+.cand{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.cand .ch{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.cand .ch b{font-size:19px;color:var(--coral)}
+.cand .ch .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13.5px}
+.cand .snip{font-size:14.5px;line-height:1.8}
+.cand .vars{font-size:12.5px;color:var(--muted)}
+.sugg{background:var(--surface-2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.sugg .lbl{font-size:12.5px;font-weight:700;color:var(--teal)}
+.sugg .lbl.warn{color:var(--coral)}
+.sugg .en{direction:ltr;text-align:left;color:var(--muted);font-size:14px}
+.mini.ok{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+.media-box{display:flex;flex-direction:column;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.media-box .lbl{font-size:13px;font-weight:700;color:var(--teal)}
+audio{width:100%;height:40px}
+.vid{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.vid video{width:100%;max-width:100%;border-radius:12px;background:#000;aspect-ratio:16/9}
+.vid h3{font-size:18px}
+.rec-btn{background:var(--coral);border-color:var(--coral);color:#fff;display:inline-flex;align-items:center;gap:8px}.rec-btn .rec-dot{width:10px;height:10px;border-radius:50%;background:#fff}.rec-btn.on .rec-dot{animation:recp 1s infinite}@keyframes recp{50%{opacity:.25}}
+.play-btn{display:inline-flex;align-items:center;gap:6px}
+.tagname{font-size:12px;font-weight:700;padding:1px 8px;border-radius:8px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top,0px));z-index:30;background:var(--teal);color:var(--teal-ink);padding:10px 18px;border-radius:12px;font-weight:700}
+@media (prefers-reduced-motion:no-preference){.proverb{animation:rise .5s ease-out both}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<template id="shell"><div class="shell" dir="rtl" lang="ar">
+  <header class="topbar">
+    <span class="logo-chip"><img class="logo" src="__LOGO__" alt="رائد حجازي"></span>
+    <button class="avatar-btn" type="button" data-go="about" aria-label="عن الكاتب"><img class="avatar" src="__THUMB__" alt=""></button>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section class="view" id="view-home" aria-label="الرئيسية">
+      <div class="section" style="gap:22px">
+        <article class="proverb" aria-live="polite">
+          <div class="eyebrow"><span>مثلٌ اليوم</span><span id="pv-date"></span></div>
+          <p class="text" id="pv-text"></p>
+          <p class="meaning" id="pv-meaning"></p>
+          <p class="pv-src" id="pv-src"></p>
+          <div class="row">
+            <button class="pill-btn solid" type="button" id="pv-next">مثل آخر</button>
+            <button class="pill-btn" type="button" id="pv-read" hidden>اقرأ القصة</button>
+            <button class="pill-btn" type="button" id="pv-copy">نسخ المثل</button>
+          </div>
+          <div class="row pv-tools" id="pv-tools" hidden>
+            <button class="pill-btn" type="button" id="pv-add">+ إضافة مثل</button>
+            <button class="pill-btn" type="button" id="pv-edit">تعديل هذا المثل</button>
+            <button class="pill-btn" type="button" id="pv-del">حذف</button>
+          </div>
+        </article>
+        <div class="note" id="pending-bar-home" style="display:flex;flex-direction:column;gap:8px;color:var(--ink)" hidden></div>
+
+        <div class="section">
+          <h2 id="cont-h">اقرأ الآن</h2>
+          <button class="cont" type="button" id="cont"></button>
+        </div>
+
+        <div class="section">
+          <h2>استكشف التراث</h2>
+          <div class="tiles">
+            <button class="tile" type="button" data-go="library">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg>
+              <b>مكتبة الكاتب</b><span id="tile-books"></span>
+            </button>
+            <button class="tile" type="button" data-go="glossary">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
+              <b>معجم التراث</b><span id="tile-terms"></span>
+            </button>
+            <button class="tile" type="button" data-go="videos">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><polygon points="10 9 15 12 10 15 10 9"/></svg>
+              <b>فيديوهات الكاتب</b><span id="tile-vids">مقاطع ولقاءات</span>
+            </button>
+            <button class="tile" type="button" data-go="about">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+              <b>عن الكاتب</b><span>إربد، عروس الشمال</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>من المدوّنة</h2>
+          <div class="list" id="posts"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section class="view" id="view-library" aria-label="المكتبة" hidden>
+      <div class="section">
+        <h2>مكتبة الكاتب</h2>
+        <div class="chips" id="book-chips" role="group" aria-label="تصنيف الكتب"></div>
+        <div class="list" id="books"></div>
+      </div>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section class="view" id="view-glossary" aria-label="معجم التراث" hidden>
+      <div class="section">
+        <div class="section-head"><h2>معجم التراث</h2><span class="muted" id="term-count"></span></div>
+        <button class="btn" type="button" id="term-add" hidden>+ إضافة مفردة جديدة</button>
+        <div class="note" id="pending-bar" style="display:flex;flex-direction:column;gap:8px;color:var(--ink)" hidden></div>
+        <label class="search" for="q">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16" y2="16"/></svg>
+          <span class="sr">ابحث في المعجم</span>
+          <input id="q" type="search" placeholder="ابحث عن أي كلمة… مثل: الطابون، المختار، زريفة" autocomplete="off">
+        </label>
+        <div class="chips" id="term-chips" role="group" aria-label="تصنيف المفردات"></div>
+        <button class="btn ghost" type="button" id="cand-open" hidden>الكلمات المرشّحة للمعجم</button>
+        <div class="section cand-wrap" id="cand-wrap" hidden>
+          <div class="section-head"><h2>كلمات مرشّحة للمعجم</h2><span class="muted" id="cand-count"></span></div>
+          <p class="muted" style="font-size:14px">كلمات وردت في الكتب ولم يجدها التطبيق في قائمة كلمات الفصحى ولا في المعجم، مرتّبة من الأكثر وروداً. أضف معنى ما يحتاج إلى شرح، واستبعد الأسماء وما لا يحتاج إلى شرح.</p>
+          <label class="search" for="cand-q"><span class="sr">تصفية المرشّحات</span><input id="cand-q" type="search" placeholder="ابحث في المرشّحات…" autocomplete="off"></label>
+          <div class="chips" role="group" aria-label="عرض المرشّحات"><button class="chip" type="button" data-cf="all" aria-pressed="true">الكل</button><button class="chip" type="button" data-cf="sugg" aria-pressed="false">عليها معنى مقترح</button><button class="chip" type="button" data-cf="noname" aria-pressed="false">بدون الأسماء المحتملة</button><button class="chip" type="button" data-cf="ignored" aria-pressed="false">المستبعدة</button></div>
+          <div class="btn-row" id="cand-bulk"></div>
+          <div class="list" id="cands"></div>
+          <button class="btn ghost" type="button" id="cand-more" hidden>عرض المزيد</button>
+        </div>
+        <div class="list" id="terms"></div>
+        <div class="section" id="hits-wrap" hidden>
+          <div class="section-head"><h2>ورد في كتب الكاتب</h2><span class="muted" id="hits-count"></span></div>
+          <div class="list" id="hits"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- READER -->
+    <section class="view" id="view-reader" aria-label="قراءة الكتاب" hidden>
+      <div class="section" style="gap:16px">
+        <div class="reader-top">
+          <button class="icon-btn" type="button" id="rd-back" aria-label="رجوع"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg></button>
+          <div class="ttl"><b id="rd-book"></b><span class="muted" id="rd-pos" style="font-size:13px"></span></div>
+          <div class="size-ctl">
+            <button class="icon-btn" type="button" id="rd-minus" aria-label="تصغير الخط">أ−</button>
+            <button class="icon-btn" type="button" id="rd-plus" aria-label="تكبير الخط">أ+</button>
+            <button class="icon-btn" type="button" id="rd-toc-btn" aria-label="فهرس القصص"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></button>
+          </div>
+        </div>
+        <div id="rd-toc" class="section" hidden>
+          <div class="section-head"><h2>فهرس القصص</h2><span class="muted" id="rd-count"></span></div>
+          <div class="toc" id="rd-toc-list"></div>
+        </div>
+        <div id="rd-story-wrap" class="section" style="gap:14px">
+          <article class="story" id="rd-story" aria-live="polite"></article>
+          <div class="pager">
+            <button class="btn ghost" type="button" id="rd-prev">القصة السابقة</button>
+            <button class="btn" type="button" id="rd-next">القصة التالية</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIDEOS -->
+    <section class="view" id="view-videos" aria-label="فيديوهات الكاتب" hidden>
+      <div class="section">
+        <div class="section-head"><h2>فيديوهات الكاتب</h2><span class="muted" id="vid-count"></span></div>
+        <button class="btn" type="button" id="vid-add" hidden>+ إضافة فيديو</button>
+        <div class="list" id="vids"></div>
+        <a class="social" href="https://www.youtube.com/@user-sm5ul3yb2i" target="_blank" rel="noopener">قناة الكاتب على يوتيوب</a>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="view" id="view-about" aria-label="عن الكاتب" hidden>
+      <div class="section" style="gap:20px">
+        <div class="about-hero">
+          <img class="photo" src="__PHOTO__" alt="الكاتب رائد عبدالرحمن حجازي">
+          <img class="logo-big" src="__LOGO__" alt="">
+          <h1 style="font-size:24px">رائد عبدالرحمن حجازي</h1>
+          <p class="muted">كاتب ساخر وباحث في التراث الأردني</p>
+        </div>
+        <div class="prose">
+          <p>نشأ في إربد، عروس الشمال، بين الحكايات الشعبية التي كانت تُروى في المجالس والدواوين التي رافق والده إليها، فتعلّق منذ صغره بالتراث وأهله.</p>
+          <p>درس الآثار والبيئة، ويكتب قصصاً قصيرة تصوّر الحياة القديمة في شمال الأردن، ويستخرج منها الحِكَم بأسلوب يجمع الفكاهة إلى العمق، غايته أن تبقى ذاكرة الأجداد حاضرة لدى الأجيال القادمة، داخل الأردن وفي المهجر.</p>
+        </div>
+        <div class="section">
+          <h2>تابع الكاتب</h2>
+          <div class="socials">
+            <a class="social" href="https://raidhijazi.com/" target="_blank" rel="noopener">الموقع الرسمي</a>
+            <a class="social" href="https://www.youtube.com/@user-sm5ul3yb2i" target="_blank" rel="noopener">يوتيوب</a>
+            <a class="social" href="https://www.facebook.com/raid.hijazi" target="_blank" rel="noopener">فيسبوك</a>
+            <a class="social" href="https://www.instagram.com/raidhijazi/" target="_blank" rel="noopener">إنستغرام</a>
+          </div>
+        </div>
+        <p class="muted" style="font-size:12px;text-align:center">يستعين التطبيق في اكتشاف الكلمات غير الفصيحة بقائمة كلمات مستمدّة من مشروع wordfreq (رخصة CC BY-SA 4.0).</p>
+        <p class="muted" id="copyline" style="font-size:13px;text-align:center;user-select:none">جميع الحقوق محفوظة للكاتب رائد عبدالرحمن حجازي</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="التنقل الرئيسي">
+    <div class="inner">
+      <button class="tab" type="button" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>الرئيسية</button>
+      <button class="tab" type="button" data-tab="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg>المكتبة</button>
+      <button class="tab" type="button" data-tab="glossary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>المعجم</button>
+      <button class="tab" type="button" data-tab="videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><polygon points="10 9 15 12 10 15 10 9"/></svg>فيديو</button>
+      <button class="tab" type="button" data-tab="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>عن الكاتب</button>
+    </div>
+  </nav>
+</div>
+
+<div id="sheet" class="sheet-back" dir="rtl" lang="ar" hidden></div>
+<div id="pop" class="pop" dir="rtl" lang="ar" role="dialog" aria-live="polite" hidden></div>
+<input type="file" id="file-audio" accept="audio/*" hidden>
+<input type="file" id="file-video" accept="video/*" hidden></template>
+<script type="application/json" id="d-terms">__TERMS_JSON__</script>
+<script type="application/json" id="d-proverbs">__PROVERBS_JSON__</script>
+<script type="application/json" id="d-ignored">__IGNORED_JSON__</script>
+<script type="text/plain" id="d-lex">__LEX__</script>
+<script type="application/json" id="d-sugg">__SUGG_JSON__</script>
+<script type="application/json" id="d-media">__MEDIA_JSON__</script>
+<script type="application/json" id="d-books">__BOOKS_JSON__</script>
+<script id="d-js">
+/* mount the static markup from its template */
+(function(){ const t=document.getElementById("shell"); document.body.insertBefore(t.content.cloneNode(true), t); })();
+let CAN_EDIT = false, ART = null;
+/* ===== CONTENT — edit here for each update ===== */
+const DATA = {
+  version: "1.0",
+  books: [
+    {id:"shatharat1", title:"شذرات من التراث – الجزء الأول", cat:"heritage", color:"#B83C35", url:"https://raidhijazi.com/shatharat/", readable:true, meta:"دار الكتاب، إربد", desc:"مجموعة من القصص التراثية والشعبية، الحقيقي منها والمتخيَّل، تحمل في طيّاتها الدروس والحِكَم."},
+    {id:"shatharat2", title:"شذرات من التراث – الجزء الثاني", cat:"heritage", color:"#336E6A", url:"https://raidhijazi.com/shatharat2/", readable:true, meta:"الطبعة الأولى 2018", desc:"استكمال لما نشره الكاتب في الجزء الأول من قصص التراث الأردني وحكاياته، على ألسنة المختار مثقال وزريفة وأهل القرية."},
+    {id:"aja", title:"أجا عبالي", cat:"heritage", color:"#4E7F7B", url:"https://raidhijazi.com/aja-3abali/", readable:true, meta:"الطبعة الأولى 2018 · مؤسسة حمادة للدراسات الجامعية والنشر والتوزيع، إربد", desc:"قصص ومقالات قصيرة تربط الماضي بالحاضر، مستمدّة من ذاكرة الطفولة وأحداثها اليومية، بأسلوب الكوميديا السوداء، وبعضها مكتوب باللهجة المحكية."},
+    {id:"anwar", title:"قصة أنور الأهتر", cat:"heritage", color:"#8A3A33", url:"https://raidhijazi.com/anwar-ahtar/", readable:true, unit:"فصل", desc:"حكاية طفل في القرية فقد القدرة على النطق السليم بسبب خطأ طبي، وما واجهه في الانخراط في الحياة."},
+    {id:"anwar-en", title:"Anwar The Ahtar", cat:"en", color:"#25514E", url:"https://raidhijazi.com/anwar-ahtar-english/", readable:true, ltr:true, unit:"فصل", meta:"2024 · Zamzam Publishers, Amman", desc:"الترجمة الإنجليزية لقصة أنور الأهتر، موجّهة إلى أبنائنا الذين وُلدوا ونشأوا في بلاد الغرب ليتعرّفوا إلى حكاياتنا ومصطلحاتنا التراثية."},
+    {id:"khurbut", title:"خُربُط بُربُط", cat:"satire", color:"#1F2830", url:"https://raidhijazi.com/khurbut-burbut/", readable:true, meta:"الطبعة الأولى 2019", desc:"ذكريات وخواطر ظاهرها الفكاهة والتسلية، وفي باطنها مرارة وحزن."},
+    {id:"darebestan", title:"ضريبستان", cat:"satire", color:"#5A4A3A", url:"https://raidhijazi.com/darebestan/", readable:true, meta:"2022 · زمزم ناشرون وموزعون، عمّان", desc:"كتاب ساخر موجّه إلى كلّ من ضاق به العيش وأثقلته الأعباء."}
+  ],
+  posts: [
+    {title:"معصرة بيت إديس – لواء الكورة", date:"2024-11-07", url:"https://raidhijazi.com/post008/"},
+    {title:"حفل إعلان توقيع كتاب شذرات من التراث", date:"2024-10-30", url:"https://raidhijazi.com/blog-shatharat/"},
+    {title:"قلم رصاص", date:"2024-08-03", url:"https://raidhijazi.com/%d9%82%d9%84%d9%85-%d8%b1%d8%b5%d8%a7%d8%b5/"}
+  ],
+  proverbs: JSON.parse(document.getElementById("d-proverbs").textContent),
+  terms: JSON.parse(document.getElementById("d-terms").textContent),
+  ignored: JSON.parse(document.getElementById("d-ignored").textContent),
+  media: JSON.parse(document.getElementById("d-media").textContent)
+};
+const BOOK_TEXT = JSON.parse(document.getElementById("d-books").textContent);
+/* ===== END CONTENT ===== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = { get(k){ try{return localStorage.getItem(k)}catch(e){return null} }, set(k,v){ try{localStorage.setItem(k,v)}catch(e){} } };
+const BOOK_CATS = [["all","الكل"],["heritage","التراث"],["satire","الأدب الساخر"],["en","English"]];
+const TERM_CATS = [["all","الكل"],["author","من شروح الكاتب"],["dialect","اللهجة"],["house","البيت"],["field","الحقل والبيدر"],["coffee","القهوة"]];
+const catLabel = (list,id) => (list.find(c=>c[0]===id)||["",""])[1];
+
+/* proverb of the day: same proverb for everyone on a given day */
+const today = new Date();
+const dayIndex = Math.floor((Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()) - Date.UTC(2026,0,1)) / 86400000);
+let pvi = 0;
+function fixPvi(){ const n = DATA.proverbs.length; pvi = n ? ((dayIndex % n) + n) % n : 0; }
+function renderProverb(){
+  $("#pv-date").textContent = today.toLocaleDateString("ar-JO",{weekday:"long", day:"numeric", month:"long"});
+  const p = DATA.proverbs[pvi];
+  if(!p){ $("#pv-text").textContent = "لا توجد أمثال بعد"; $("#pv-meaning").textContent = ""; $("#pv-src").textContent = ""; $("#pv-read").hidden = true; return; }
+  $("#pv-text").textContent = "«" + p.text + "»";
+  $("#pv-meaning").textContent = p.meaning;
+  const b = p.book && bookOf(p.book), st = b && BOOK_TEXT[p.book] && BOOK_TEXT[p.book][p.si];
+  $("#pv-src").textContent = st ? `ورد في قصة «${st.title}» من كتاب ${b.title}` : "";
+  $("#pv-read").hidden = !st;
+}
+$("#pv-next").addEventListener("click", () => { if(!DATA.proverbs.length) return; pvi = (pvi + 1) % DATA.proverbs.length; renderProverb(); });
+$("#pv-read").addEventListener("click", () => { const p = DATA.proverbs[pvi]; if(!p || !p.book) return; RD.hl = normMap(p.text).out; openReader(p.book, p.si); });
+$("#pv-copy").addEventListener("click", async (e) => {
+  const p = DATA.proverbs[pvi]; if(!p) return; const txt = p.text + " — " + p.meaning;
+  const btn = e.currentTarget;
+  try { await navigator.clipboard.writeText(txt); btn.textContent = "نُسخ المثل"; }
+  catch(err){ btn.textContent = "تعذّر النسخ"; }
+  setTimeout(()=>{ btn.textContent = "نسخ المثل"; }, 1800);
+});
+
+/* posts */
+$("#posts").innerHTML = DATA.posts.map(p => {
+  const d = new Date(p.date).toLocaleDateString("ar-JO",{day:"numeric",month:"long",year:"numeric"});
+  return `<a class="row-card" href="${esc(p.url)}" target="_blank" rel="noopener"><div class="body"><b>${esc(p.title)}</b><span class="date">${d}</span></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></a>`;
+}).join("");
+$("#tile-books").textContent = DATA.books.length + " كتب";
+$("#tile-terms").textContent = DATA.terms.length + " مفردة تراثية";
+
+/* library */
+let bookCat = "all";
+function renderBooks(){
+  $("#book-chips").innerHTML = BOOK_CATS.map(([id,l]) => `<button class="chip" type="button" data-bcat="${id}" aria-pressed="${id===bookCat}">${l}</button>`).join("");
+  const list = DATA.books.filter(b => bookCat==="all" || b.cat===bookCat);
+  $("#books").innerHTML = list.map(b => `<button class="row-card" type="button" data-book="${b.id}">
+      <span class="cover" style="background:${b.color}">${esc(b.title)}</span>
+      <span class="body"><b>${esc(b.title)}</b><small>${esc(b.desc)}</small><span style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge${b.cat==='satire'?' coral':''}">${catLabel(BOOK_CATS,b.cat)}</span>${b.readable ? `<span class="badge">متاح للقراءة · ${storyCount(b.id)} ${b.unit==="فصل" ? "فصلاً" : "قصة"}</span>` : `<span class="badge coral">قريباً</span>`}</span></span>
+    </button>`).join("");
+}
+$("#book-chips").addEventListener("click", e => { const b = e.target.closest("[data-bcat]"); if(!b) return; bookCat = b.dataset.bcat; renderBooks(); });
+$("#books").addEventListener("click", e => { const b = e.target.closest("[data-book]"); if(b) openBook(b.dataset.book); });
+
+function openBook(id){
+  const b = DATA.books.find(x=>x.id===id); if(!b) return;
+  const sh = $("#sheet");
+  sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="bk-title">
+    <div class="top"><span class="cover" style="background:${b.color}">${esc(b.title)}</span>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h3 id="bk-title" style="font-size:20px">${esc(b.title)}</h3><span class="badge${b.cat==='satire'?' coral':''}">${catLabel(BOOK_CATS,b.cat)}</span><span class="muted">رائد عبدالرحمن حجازي</span></div></div>
+    <p>${esc(b.desc)}</p>
+    ${b.readable ? `<p class="muted" style="font-size:14px">${storyCount(b.id)} ${b.unit==="فصل" ? "فصلاً" : "قصة ومقالة"}${b.meta ? " · " + esc(b.meta) : ""}</p>
+    <div class="btn-row"><button class="btn" type="button" data-read="${b.id}">اقرأ الكتاب</button><a class="btn ghost" href="${esc(b.url)}" target="_blank" rel="noopener">صفحته في الموقع</a></div>`
+    : `<p class="note">القراءة داخل التطبيق ستتاح قريباً بإذن الله. يمكنك الآن الاطّلاع على تفاصيل الكتاب في موقع الكاتب.</p>
+    <div class="btn-row"><a class="btn" href="${esc(b.url)}" target="_blank" rel="noopener">صفحة الكتاب في الموقع</a><button class="btn ghost" type="button" data-close>إغلاق</button></div>`}
+  </div>`;
+  sh.hidden = false;
+  (sh.querySelector("[data-read]") || sh.querySelector("[data-close]") || sh.querySelector(".btn")).focus();
+}
+$("#sheet").addEventListener("click", e => {
+  const r = e.target.closest("[data-read]");
+  if(r){ closeSheet(); openReader(r.dataset.read); return; }
+  if(e.target.id==="sheet" || e.target.closest("[data-close]")) closeSheet();
+});
+document.addEventListener("keydown", e => { if(e.key==="Escape" && !$("#sheet").hidden) closeSheet(); });
+function closeSheet(){ if(REC.on){ try{ REC.mr.onstop = null; REC.mr.stop(); }catch(e){} endRec(); } const sh=$("#sheet"); sh.hidden = true; sh.innerHTML = ""; }
+
+/* glossary */
+let termCat = "all";
+const norm = s => s.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/^ال/,"").trim().toLowerCase();
+function renderTerms(){
+  $("#term-chips").innerHTML = TERM_CATS.map(([id,l]) => `<button class="chip" type="button" data-tcat="${id}" aria-pressed="${id===termCat}">${l}</button>`).join("");
+  const q = norm($("#q").value || "");
+  const list = DATA.terms.filter(t => (termCat==="all"||t.cat===termCat) && (!q || norm(t.w).includes(q) || norm(t.d).includes(q) || t.en.toLowerCase().includes(q)))
+    .sort((a,b)=>norm(a.w).localeCompare(norm(b.w),"ar"));
+  const raw = ($("#q").value || "").trim();
+  $("#term-count").textContent = list.length + " مفردة";
+  $("#terms").innerHTML = list.length ? list.map(t => `<article class="term">
+      <div class="term-head"><b>${esc(t.w)}</b><span class="tag">${catLabel(TERM_CATS,t.cat)}</span></div>
+      <p>${esc(t.d)}</p>${t.en ? `<p class="en" lang="en">${esc(t.en)}</p>` : ""}
+      ${t.audio ? `<button class="mini play-btn" type="button" data-tplay="${DATA.terms.indexOf(t)}">ICON استمع إلى النطق</button>`.replace("ICON",'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>') : ""}
+      ${t.src && bookOf(t.src) ? `<p class="src">من شرح الكاتب في كتاب «${esc(bookOf(t.src).title)}»</p>` : ""}
+      ${CAN_EDIT ? `<div class="term-actions"><button class="mini" type="button" data-tedit="${DATA.terms.indexOf(t)}">تعديل</button><button class="mini" type="button" data-taud="${DATA.terms.indexOf(t)}">${t.audio ? "استبدال النطق" : "إضافة نطق"}</button><button class="mini danger" type="button" data-tdel="${DATA.terms.indexOf(t)}">حذف</button></div>` : ""}</article>`).join("")
+    : (raw ? `<p class="empty">لا توجد هذه الكلمة بين مفردات المعجم بعد، وهذه مواضع ورودها في كتب الكاتب.</p>` : "");
+  renderHits(raw);
+}
+$("#term-chips").addEventListener("click", e => { const b = e.target.closest("[data-tcat]"); if(!b) return; termCat = b.dataset.tcat; renderTerms(); });
+let qTimer = null;
+$("#q").addEventListener("input", () => { clearTimeout(qTimer); qTimer = setTimeout(renderTerms, 180); });
+
+/* ===== full-text search across the books ===== */
+function normMap(s){
+  let out = "", map = [];
+  for(let i=0;i<s.length;i++){
+    const c = s[i];
+    if(/[ً-ٰٟـ]/.test(c)) continue;
+    let d = c;
+    if("أإآٱ".includes(c)) d = "ا"; else if(c==="ة") d = "ه"; else if(c==="ى") d = "ي";
+    out += d.toLowerCase(); map.push(i);
+  }
+  return {out, map};
+}
+let SEARCH_IDX = null;
+function buildIdx(){
+  SEARCH_IDX = [];
+  for(const b of DATA.books){
+    const st = BOOK_TEXT[b.id]; if(!st) continue;
+    st.forEach((s,si) => SEARCH_IDX.push({book:b.id, si, title:s.title, paras: s.paras.map(p => normMap(p).out)}));
+  }
+}
+function snippet(p, qn){
+  const {out, map} = normMap(p); const pos = out.indexOf(qn); if(pos<0) return esc(p.slice(0,120));
+  const a = map[pos], z = map[pos+qn.length-1] + 1;
+  const from = Math.max(0, a-55), to = Math.min(p.length, z+70);
+  return (from>0?"… ":"") + esc(p.slice(from,a)) + "<mark>" + esc(p.slice(a,z)) + "</mark>" + esc(p.slice(z,to)) + (to<p.length?" …":"");
+}
+function markAll(p, qn){
+  const {out, map} = normMap(p); let html = "", last = 0, pos = out.indexOf(qn);
+  if(pos<0) return null;
+  while(pos>=0){
+    const a = map[pos], z = map[pos+qn.length-1] + 1;
+    html += esc(p.slice(last,a)) + "<mark>" + esc(p.slice(a,z)) + "</mark>"; last = z;
+    pos = out.indexOf(qn, pos+qn.length);
+  }
+  return html + esc(p.slice(last));
+}
+function renderHits(raw){
+  const qn = normMap(raw).out.replace(/\s+/g," ");
+  const wrap = $("#hits-wrap");
+  if(qn.length < 2){ wrap.hidden = true; return; }
+  if(!SEARCH_IDX) buildIdx();
+  const hits = []; let total = 0;
+  for(const e of SEARCH_IDX){
+    let n = 0, first = -1;
+    e.paras.forEach((p,pi) => { let k = p.indexOf(qn); while(k>=0){ n++; if(first<0) first = pi; k = p.indexOf(qn, k+qn.length); } });
+    if(normMap(e.title).out.includes(qn) && first<0) first = 0;
+    if(n || first>=0){ total += n; hits.push({...e, n, first}); }
+  }
+  hits.sort((a,b) => b.n - a.n);
+  wrap.hidden = false;
+  $("#hits-count").textContent = hits.length ? `${total} مرة في ${hits.length} قصة` : "";
+  const shown = hits.slice(0,40);
+  $("#hits").innerHTML = hits.length ? shown.map(h => {
+    const b = bookOf(h.book); const para = BOOK_TEXT[h.book][h.si].paras[h.first] || "";
+    return `<button class="hit" type="button" data-hb="${h.book}" data-hs="${h.si}">
+      <span class="hh"><b>${esc(h.title)}</b><span class="src">${esc(b.title)}${h.n ? " · " + h.n + " مرة" : ""}</span></span>
+      <span class="snip" dir="${b.ltr?'ltr':'rtl'}">${snippet(para, qn)}</span></button>`;
+  }).join("") + (hits.length>40 ? `<p class="empty">تظهر أول 40 قصة من ${hits.length}. اكتب كلمة أدقّ لتضييق النتائج.</p>` : "")
+  : `<p class="empty">لم ترد «${esc(raw)}» في كتب الكاتب المتاحة. جرّب صيغة أخرى للكلمة.</p>`;
+}
+$("#hits").addEventListener("click", e => {
+  const h = e.target.closest("[data-hb]"); if(!h) return;
+  RD.hl = normMap(($("#q").value||"").trim()).out.replace(/\s+/g," ");
+  openReader(h.dataset.hb, Number(h.dataset.hs));
+});
+
+/* ===== reader ===== */
+const RD = { book:null, i:1, size: Number(store.get("rh-size")) || 19, from:"library" };
+const progKey = id => "rh-prog-" + id;
+function getProg(id){ try{ return JSON.parse(store.get(progKey(id))) || {i:1, read:[]}; }catch(e){ return {i:1, read:[]}; } }
+function setProg(id,p){ store.set(progKey(id), JSON.stringify(p)); }
+
+/* glossary links inside the text */
+let TERM_RE = null, formIx = {};
+function rebuildTermRe(){
+  const forms = [];
+  DATA.terms.forEach((t,ix) => [...new Set((t.forms || []).concat([t.w]))].forEach(f => { f = String(f).trim(); if(f) forms.push([f,ix]); }));
+  forms.sort((a,b)=>b[0].length-a[0].length);
+  TERM_RE = forms.length ? new RegExp("(?<![\\p{L}\\p{M}])(" + forms.map(f=>f[0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|") + ")(?![\\p{L}\\p{M}])","gu") : null;
+  formIx = Object.fromEntries(forms.slice().reverse());
+}
+rebuildTermRe();
+const linkTerms = html => TERM_RE ? html.replace(TERM_RE, m => `<button type="button" class="gl" data-term="${formIx[m]}">${m}</button>`) : html;
+
+const hasIntro = id => /^(ال)?مقدمة$/.test(BOOK_TEXT[id][0].title.trim());
+const storyCount = id => BOOK_TEXT[id].length - (hasIntro(id) ? 1 : 0);
+const numOf = (id,i) => hasIntro(id) ? i : i+1;   /* display number of story i */
+const bookOf = id => DATA.books.find(b=>b.id===id);
+function firstIx(id){ return hasIntro(id) ? 1 : 0; }
+
+function openReader(id, i){
+  const stories = BOOK_TEXT[id]; if(!stories) return;
+  RD.book = id; store.set("rh-last", id);
+  const p = getProg(id);
+  RD.i = (i!=null) ? i : (p.read.length ? p.i : 0);
+  const curView = TABS.find(t => !$("#view-"+t).hidden);
+  if(curView) RD.from = curView;
+  const b = bookOf(id);
+  $("#rd-book").textContent = b.title;
+  $("#rd-count").textContent = storyCount(id) + (b.unit==="فصل" ? " فصلاً" : " قصة");
+  const art = $("#rd-story"), toc = $("#rd-toc-list");
+  [art,toc].forEach(el => { el.dir = b.ltr ? "ltr" : "rtl"; el.lang = b.ltr ? "en" : "ar"; });
+  showView("reader");
+  showStory();
+}
+function showStory(){
+  const id = RD.book, stories = BOOK_TEXT[id], b = bookOf(id);
+  RD.i = Math.max(0, Math.min(stories.length-1, RD.i));
+  const s = stories[RD.i];
+  const unitWord = b.unit==="فصل" ? "الفصل" : "القصة";
+  const isIntro = hasIntro(id) && RD.i===0;
+  document.documentElement.style.setProperty("--rs", RD.size + "px");
+  const hl = RD.hl;
+  const body = s.paras.map(p => { const m = hl ? markAll(p, hl) : null; return `<p>${m!==null ? m : (b.ltr ? esc(p) : linkTerms(esc(p)))}</p>`; }).join("");
+  const meta = s.page ? `<p class="meta">${b.ltr ? "Page " + s.page + " in the print edition" : "صفحة " + s.page + " في الطبعة الورقية"}</p>` : "";
+  const sk = id + ":" + RD.i, sa = (DATA.media.story || {})[sk];
+  const audioHtml = sa ? `<div class="media-box"><span class="lbl">${b.ltr ? "Listen to this chapter" : "استمع إلى " + (b.unit==="فصل" ? "الفصل" : "القصة")}</span><audio controls preload="none" src="${esc(mediaSrc(sa))}"></audio></div>` : "";
+  const edHtml = CAN_EDIT ? `<div class="term-actions"><button class="mini" type="button" data-saud="${sk}">${sa ? "استبدال التسجيل الصوتي" : "إضافة تسجيل صوتي " + (b.unit==="فصل" ? "لهذا الفصل" : "لهذه القصة")}</button>${sa ? `<button class="mini danger" type="button" data-sauddel="${sk}">حذف التسجيل</button>` : ""}</div>` : "";
+  $("#rd-story").innerHTML = `<h1>${esc(s.title)}</h1>${meta}${audioHtml}${edHtml}<div class="txt">${body}</div>`;
+  $("#rd-pos").textContent = isIntro ? "مقدمة الكتاب" : `${unitWord} ${numOf(id,RD.i)} من ${storyCount(id)}`;
+  $("#rd-prev").disabled = RD.i===0; $("#rd-prev").style.opacity = RD.i===0 ? .45 : 1;
+  $("#rd-prev").textContent = b.unit==="فصل" ? "الفصل السابق" : "القصة السابقة";
+  const last = RD.i===stories.length-1;
+  $("#rd-next").textContent = last ? "العودة إلى الفهرس" : (isIntro ? `ابدأ ${unitWord} الأولى`.replace("ابدأ الفصل الأولى","ابدأ الفصل الأول") : (b.unit==="فصل" ? "الفصل التالي" : "القصة التالية"));
+  const p = getProg(id); p.i = RD.i; if(!p.read.includes(RD.i)) p.read.push(RD.i); setProg(id, p);
+  $("#rd-toc").hidden = true; $("#rd-story-wrap").hidden = false;
+  closePop(); renderCont();
+  const firstMark = hl ? $("#rd-story mark") : null;
+  if(firstMark){ firstMark.scrollIntoView({block:"center"}); } else { window.scrollTo({top:0}); }
+  RD.hl = null;
+}
+function showToc(){
+  const id = RD.book, stories = BOOK_TEXT[id]; const p = getProg(id);
+  $("#rd-toc-list").innerHTML = stories.map((s,i) => `<button type="button" data-si="${i}" class="${p.read.includes(i)?'read':''} ${i===RD.i?'current':''}"><span class="n">${hasIntro(id)&&i===0?'—':numOf(id,i)}</span><span>${esc(s.title)}</span></button>`).join("");
+  $("#rd-toc").hidden = false; $("#rd-story-wrap").hidden = true; closePop();
+  window.scrollTo({top:0});
+}
+$("#rd-toc-list").addEventListener("click", e => { const b = e.target.closest("[data-si]"); if(b){ RD.i = Number(b.dataset.si); showStory(); } });
+$("#rd-toc-btn").addEventListener("click", () => $("#rd-toc").hidden ? showToc() : showStory());
+$("#rd-prev").addEventListener("click", () => { RD.i--; showStory(); });
+$("#rd-next").addEventListener("click", () => { if(RD.i >= BOOK_TEXT[RD.book].length-1){ showToc(); } else { RD.i++; showStory(); } });
+$("#rd-back").addEventListener("click", () => go(RD.from || "library"));
+$("#rd-minus").addEventListener("click", () => { RD.size = Math.max(15, RD.size-1); store.set("rh-size", RD.size); document.documentElement.style.setProperty("--rs", RD.size+"px"); });
+$("#rd-plus").addEventListener("click", () => { RD.size = Math.min(28, RD.size+1); store.set("rh-size", RD.size); document.documentElement.style.setProperty("--rs", RD.size+"px"); });
+
+/* glossary popup */
+$("#rd-story").addEventListener("click", e => {
+  const g = e.target.closest("[data-term]"); if(!g) return;
+  const t = DATA.terms[Number(g.dataset.term)];
+  const pop = $("#pop");
+  pop.innerHTML = `<div class="ph"><b>${esc(t.w)}</b><button class="icon-btn" type="button" id="pop-x" aria-label="إغلاق">×</button></div><p>${esc(t.d)}</p><p class="muted" dir="ltr" lang="en" style="text-align:left;font-size:14px">${esc(t.en)}</p>${t.audio ? `<button class="mini play-btn" type="button" data-tplay="${DATA.terms.indexOf(t)}" style="align-self:flex-start">ICON استمع إلى النطق</button>`.replace("ICON",'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>') : ""}`;
+  pop.hidden = false; $("#pop-x").focus();
+});
+$("#pop").addEventListener("click", e => { if(e.target.closest("#pop-x")) closePop(); });
+document.addEventListener("click", e => { const b = e.target.closest("[data-tplay]"); if(!b) return; const t = DATA.terms[Number(b.dataset.tplay)]; if(t && t.audio) playAudio(t.audio); });
+function closePop(){ $("#pop").hidden = true; }
+
+/* home: continue reading */
+function renderCont(){
+  let id = store.get("rh-last"); if(!BOOK_TEXT[id]) id = "aja";
+  const stories = BOOK_TEXT[id], p = getProg(id), b = bookOf(id);
+  const started = p.read.length > 0;
+  const done = p.read.filter(i => !(hasIntro(id) && i===0)).length, total = storyCount(id);
+  const s = stories[started ? p.i : firstIx(id)];
+  const readable = DATA.books.filter(x=>x.readable).length;
+  $("#cont-h").textContent = started ? "تابع القراءة" : "اقرأ الآن";
+  $("#cont").dataset.book = id;
+  $("#cont").innerHTML = `<span class="cover" style="background:${b.color}">${esc(b.title)}</span>
+    <span class="body"><b>${started ? esc(s.title) : esc(b.title)}</b>
+    <small class="muted">${started ? "من كتاب " + esc(b.title) : readable + " كتب كاملة للقراءة داخل التطبيق"}</small>
+    <span class="bar" aria-hidden="true"><i style="width:${Math.round(done/total*100)}%"></i></span>
+    <small class="muted">${done ? "قرأت " + done + " من " + total : "ابدأ بـ: " + esc(stories[firstIx(id)].title)}</small></span>`;
+}
+$("#cont").addEventListener("click", e => openReader(e.currentTarget.dataset.book || "aja"));
+
+/* navigation */
+const TABS = ["home","library","glossary","videos","about"];
+const VIEWS = [...TABS, "reader"];
+function showView(v){
+  VIEWS.forEach(t => { $("#view-"+t).hidden = (t!==v); });
+  const tab = v==="reader" ? "library" : v;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-current", b.dataset.tab===tab ? "page" : "false"));
+  window.scrollTo({top:0});
+}
+function go(tab){
+  if(!TABS.includes(tab)) tab = "home";
+  showView(tab); closePop();
+  store.set("rh-tab", tab);
+}
+document.addEventListener("click", e => { const t = e.target.closest("[data-tab],[data-go]"); if(t) go(t.dataset.tab || t.dataset.go); });
+
+/* ===== glossary editing (only for people who can edit this app) ===== */
+function toast(msg){
+  const t = document.createElement("div"); t.className = "toast"; t.dir = "rtl"; t.setAttribute("role","status"); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+const EDIT_CATS = TERM_CATS.filter(c => c[0] !== "all");
+function openTermForm(ix, pre){
+  const t = ix!=null ? DATA.terms[ix] : (pre || {w:"", d:"", en:"", cat:"dialect", forms:[]});
+  const extra = (t.forms || []).filter(f => f !== t.w).join("، ");
+  const sh = $("#sheet");
+  sh.innerHTML = `<form class="sheet" id="term-form" role="dialog" aria-modal="true" aria-labelledby="tf-h" novalidate>
+    <h3 id="tf-h" style="font-size:20px">${ix!=null ? "تعديل مفردة" : "إضافة مفردة جديدة"}</h3>
+    <div class="field"><label for="tf-w">الكلمة</label><input id="tf-w" required value="${esc(t.w)}" placeholder="مثال: الطابون"></div>
+    <div class="field"><label for="tf-d">الشرح</label><textarea id="tf-d" required placeholder="اكتب معنى الكلمة كما يشرحها الكاتب">${esc(t.d)}</textarea></div>
+    <div class="field"><label for="tf-en">الترجمة الإنجليزية <small>(اختياري)</small></label><input id="tf-en" dir="ltr" lang="en" value="${esc(t.en||"")}" placeholder="e.g. Clay bread oven"></div>
+    <div class="field"><label for="tf-cat">التصنيف</label><select id="tf-cat">${EDIT_CATS.map(([id,l]) => `<option value="${id}" ${id===t.cat?"selected":""}>${l}</option>`).join("")}</select></div>
+    <div class="field"><label for="tf-forms">صيغ أخرى للكلمة <small>(اختياري، افصل بينها بفاصلة)</small></label><input id="tf-forms" value="${esc(extra)}" placeholder="مثال: طابون، الطوابين"><small>تُميَّز الكلمة وكلّ صيغة من هذه الصيغ داخل نصوص الكتب.</small></div>
+    <p class="form-msg" id="tf-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn" type="submit" id="tf-save">حفظ المفردة</button><button class="btn ghost" type="button" data-close>إلغاء</button></div>
+  </form>`;
+  sh.hidden = false; $("#tf-w").focus();
+  $("#term-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const w = $("#tf-w").value.trim(), d = $("#tf-d").value.trim();
+    if(!w || !d){ $("#tf-msg").textContent = "اكتب الكلمة وشرحها قبل الحفظ."; return; }
+    const forms = [w, ...$("#tf-forms").value.split(/[،,]/).map(s => s.trim()).filter(Boolean)];
+    const entry = {w, d, en: $("#tf-en").value.trim(), cat: $("#tf-cat").value, forms: [...new Set(forms)]};
+    if(ix!=null && t.src) entry.src = t.src;
+    if(t.audio) entry.audio = t.audio;
+    const dup = DATA.terms.findIndex((x,i) => i!==ix && norm(x.w)===norm(w));
+    if(dup>=0){ $("#tf-msg").textContent = "هذه الكلمة موجودة في المعجم. افتحها واضغط «تعديل» لتغيير شرحها."; return; }
+    const terms = DATA.terms.slice();
+    if(ix!=null) terms[ix] = entry; else terms.push(entry);
+    if(pre && pre.fromCand){ closeSheet(); stageTerms(terms, `أُضيفت «${entry.w}» إلى المعجم`); return; }
+    JUST_SAVED = entry; try{ sessionStorage.setItem("rh-show-term", entry.w); }catch(e){}
+    await saveTerms(terms, $("#tf-save"), $("#tf-msg"), ix!=null ? "حُفظ التعديل" : "أُضيفت المفردة");
+  });
+}
+function openTermDelete(ix){
+  const t = DATA.terms[ix]; const sh = $("#sheet");
+  sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="td-h">
+    <h3 id="td-h" style="font-size:20px">حذف «${esc(t.w)}» من المعجم؟</h3>
+    <p class="muted">ستُحذف المفردة وشرحها من التطبيق لجميع المستخدمين، ولن تبقى مميَّزة داخل نصوص الكتب.</p>
+    <p class="form-msg" id="td-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn danger" type="button" id="td-yes">حذف المفردة</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></div>`;
+  sh.hidden = false; $("#td-yes").focus();
+  $("#td-yes").addEventListener("click", async () => {
+    const terms = DATA.terms.filter((_,i) => i!==ix);
+    await saveTerms(terms, $("#td-yes"), $("#td-msg"), "حُذفت المفردة");
+  });
+}
+/* --- edits kept on this device when this view cannot publish (e.g. some phone apps) --- */
+let PAGE = {terms: DATA.terms.slice(), proverbs: DATA.proverbs.slice(), ignored: DATA.ignored.slice()};
+const hashStr = s => { let h = 5381; for(let i=0;i<s.length;i++) h = ((h<<5) + h + s.charCodeAt(i)) | 0; return String(h); };
+let PAGE_HASH = hashStr(JSON.stringify(PAGE));
+function getPending(){ try{ const p = JSON.parse(localStorage.getItem("rh-content-pending")); return p && p.base===PAGE_HASH ? p : null; }catch(e){ return null; } }
+function setPending(c){ try{ localStorage.setItem("rh-content-pending", JSON.stringify({base: PAGE_HASH, terms: c.terms, proverbs: c.proverbs, ignored: c.ignored || []})); }catch(e){} }
+function clearPending(){ try{ localStorage.removeItem("rh-content-pending"); localStorage.removeItem("rh-terms-pending"); }catch(e){} }
+function diffBy(before, after, id, key){
+  const b = new Map(before.map(x => [id(x), key(x)])), a = new Map(after.map(x => [id(x), key(x)]));
+  return { added: after.filter(x => !b.has(id(x))), changed: after.filter(x => b.has(id(x)) && b.get(id(x))!==key(x)), removed: before.filter(x => !a.has(id(x))) };
+}
+function pendingDiff(c){
+  const t = diffBy(PAGE.terms, c.terms, x => x.w, x => JSON.stringify([x.w,x.d,x.en||"",x.cat,(x.forms||[]).join("|")]));
+  const p = diffBy(PAGE.proverbs, c.proverbs, x => x.text, x => JSON.stringify([x.text,x.meaning,x.book||"",x.si==null?"":x.si]));
+  const ig = diffBy(PAGE.ignored, c.ignored || [], x => x, x => x);
+  return {t, p, ig, count: t.added.length+t.changed.length+t.removed.length+p.added.length+p.changed.length+p.removed.length+ig.added.length+ig.removed.length};
+}
+function srcLabel(x){ const b = x.book && bookOf(x.book); if(!b) return ""; const st = BOOK_TEXT[x.book][x.si]; return " | المصدر: " + b.title + (st ? " – " + st.title : ""); }
+function pendingText(c){
+  const d = pendingDiff(c);
+  const tl = t => `${t.w}: ${t.d}${t.en ? " | " + t.en : ""}${(t.forms||[]).length>1 ? " | الصيغ: " + t.forms.filter(f=>f!==t.w).join("، ") : ""} | التصنيف: ${catLabel(TERM_CATS,t.cat)}`;
+  const pl = p => `«${p.text}»: ${p.meaning}${srcLabel(p)}`;
+  let s = "تعديلات تطبيق رائد حجازي\n";
+  if(d.t.added.length) s += "\nمفردات جديدة:\n" + d.t.added.map(tl).join("\n");
+  if(d.t.changed.length) s += "\n\nمفردات معدَّلة:\n" + d.t.changed.map(tl).join("\n");
+  if(d.t.removed.length) s += "\n\nمفردات محذوفة:\n" + d.t.removed.map(t => t.w).join("\n");
+  if(d.p.added.length) s += "\n\nأمثال جديدة:\n" + d.p.added.map(pl).join("\n");
+  if(d.p.changed.length) s += "\n\nأمثال معدَّلة:\n" + d.p.changed.map(pl).join("\n");
+  if(d.p.removed.length) s += "\n\nأمثال محذوفة:\n" + d.p.removed.map(p => p.text).join("\n");
+  if(d.ig.added.length) s += "\n\nكلمات مستبعدة من المرشّحات:\n" + d.ig.added.join("، ");
+  if(d.ig.removed.length) s += "\n\nكلمات أُعيدت إلى المرشّحات:\n" + d.ig.removed.join("، ");
+  return s;
+}
+{ const p = getPending(); if(p){ DATA.terms = p.terms; DATA.proverbs = p.proverbs; DATA.ignored = p.ignored || DATA.ignored; } }
+function renderPendingBar(){
+  const bars = [$("#pending-bar"), $("#pending-bar-home")]; const p = getPending();
+  const n = (CAN_EDIT && p) ? pendingDiff(p).count : 0;
+  if(p && !n) clearPending();
+  bars.forEach(bar => {
+    if(!n){ bar.hidden = true; bar.innerHTML = ""; return; }
+    bar.hidden = false;
+    bar.innerHTML = `<b>لديك ${n===1 ? "تعديل واحد محفوظ" : n===2 ? "تعديلان محفوظان" : n<=10 ? n + " تعديلات محفوظة" : n + " تعديلاً محفوظاً"} على هذا الجهاز لم يُنشر للجميع بعد.</b>
+      <span class="muted" style="font-size:14px">${ART ? "اضغط «نشر للجميع» لإتاحتها لكلّ القرّاء." : "سجّل الدخول بحساب المحرّر ثم اضغط «نشر للجميع» لإتاحتها لكلّ القرّاء."}</span>
+      <div class="btn-row">${ART ? `<button class="btn" type="button" data-pb="pub">نشر للجميع</button>` : ""}<button class="btn ghost" type="button" data-pb="copy">نسخ التعديلات</button></div>
+      <p class="form-msg" aria-live="polite"></p>`;
+  });
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-pb]"); if(!b) return;
+  const bar = b.closest(".note"), msg = bar.querySelector(".form-msg"), p = getPending(); if(!p) return;
+  if(b.dataset.pb==="pub"){ saveContent({terms: p.terms, proverbs: p.proverbs, ignored: p.ignored || DATA.ignored}, b, msg, "نُشرت التعديلات"); return; }
+  const txt = pendingText(p);
+  try{ await navigator.clipboard.writeText(txt); b.textContent = "نُسخت، الصقها في المحادثة"; }
+  catch(err){ const ta = document.createElement("textarea"); ta.value = txt; ta.readOnly = true; ta.style.cssText = "width:100%;min-height:140px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--surface);color:var(--ink)"; msg.replaceWith(ta); ta.focus(); ta.select(); }
+});
+let JUST_SAVED = null;
+function countUses(t){
+  const keys = [...new Set((t.forms||[]).concat([t.w]).map(f => normMap(f).out))]; let n = 0;
+  for(const b of DATA.books){ const st = BOOK_TEXT[b.id]; if(!st || b.ltr) continue;
+    st.forEach(s => s.paras.forEach(p => { for(const m of p.matchAll(/[\u0621-\u064A\u064B-\u0652\u0670\u0640]+/g)) if(keys.includes(normMap(m[0]).out)) n++; })); }
+  return n;
+}
+function showSavedTerm(t){
+  const n = countUses(t), sh = $("#sheet");
+  sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ok-h">
+    <h3 id="ok-h" style="font-size:20px">أُضيفت «${esc(t.w)}» إلى المعجم</h3>
+    <article class="term"><div class="term-head"><b>${esc(t.w)}</b><span class="tag">${catLabel(TERM_CATS,t.cat)}</span></div><p>${esc(t.d)}</p>${t.en ? `<p class="en" lang="en">${esc(t.en)}</p>` : ""}</article>
+    <p class="muted" style="font-size:14.5px">${n ? `صارت الكلمة مميَّزة بلون في ${n} ${n===1?"موضع":n===2?"موضعين":n<=10?"مواضع":"موضعاً"} داخل القصص، وكلّ من يضغط عليها يظهر له هذا الشرح.` : "لم يجد التطبيق هذه الصيغة في نصوص القصص، فلن تُميَّز داخلها. أضف صيغها كما وردت في النصوص من «تعديل»."}</p>
+    <p class="note" style="font-size:14px">${ART ? "" : "الإضافة محفوظة على هذا الجهاز الآن، وتظهر لبقية القرّاء بعد النشر من شريط «تعديلات لم تُنشر بعد»."}</p>
+    <div class="btn-row"><button class="btn" type="button" id="ok-read">جرّبها في القصة</button><button class="btn ghost" type="button" data-close>متابعة</button></div></div>`;
+  if(ART) sh.querySelector(".note").remove();
+  sh.hidden = false; $("#ok-read").focus();
+  $("#ok-read").addEventListener("click", () => {
+    const keys = (t.forms||[]).concat([t.w]).map(f => normMap(f).out);
+    for(const b of DATA.books){ const st = BOOK_TEXT[b.id]; if(!st || b.ltr) continue;
+      for(let si=0; si<st.length; si++){ if(st[si].paras.some(p => [...p.matchAll(/[\u0621-\u064A\u064B-\u0652\u0670\u0640]+/g)].some(m => keys.includes(normMap(m[0]).out)))){ closeSheet(); openReader(b.id, si); setTimeout(() => { const g = [...document.querySelectorAll("#rd-story .gl")].find(x => keys.includes(normMap(x.textContent).out)); if(g){ g.scrollIntoView({block:"center"}); g.click(); } }, 60); return; } } }
+    closeSheet();
+  });
+}
+function keepOnDevice(c, okMsg){
+  setPending(c); DATA.terms = c.terms; DATA.proverbs = c.proverbs; DATA.ignored = c.ignored || DATA.ignored; CAND = null; if(!$("#cand-wrap").hidden) renderCands();
+  rebuildTermRe(); renderTerms(); fixPvi(); renderProverb(); renderPendingBar();
+  try{ sessionStorage.removeItem("rh-show-term"); }catch(e){}
+  closeSheet();
+  if(JUST_SAVED){ const t = DATA.terms.find(x => x.w===JUST_SAVED.w) || JUST_SAVED; JUST_SAVED = null; showSavedTerm(t); }
+  else toast(okMsg + " على هذا الجهاز");
+}
+async function saveContent(c, btn, msgEl, okMsg){
+  if(!ART){ keepOnDevice(c, okMsg); return; }
+  btn.disabled = true; const label = btn.textContent; btn.textContent = "جارٍ الحفظ…"; msgEl.textContent = "";
+  try{
+    try{ sessionStorage.setItem("rh-toast", okMsg); }catch(e){}
+    const mode = await publishSite(c);
+    clearPending();
+    if(mode==="files"){ try{ sessionStorage.removeItem("rh-toast"); sessionStorage.removeItem("rh-show-term"); sessionStorage.removeItem("rh-tab-after"); }catch(e){} btn.disabled = false; btn.textContent = label; applySaved(c, okMsg); }
+    else toast(okMsg + "، ويجري تحديث التطبيق…");
+  }catch(err){
+    try{ sessionStorage.removeItem("rh-toast"); }catch(e){}
+    btn.disabled = false; btn.textContent = label;
+    const code = err && err.code;
+    if(!["not_granted","consent_required","capability_disabled","capability_removed","transform_error"].includes(code)){ JUST_SAVED = null; try{ sessionStorage.removeItem("rh-show-term"); }catch(e){} }
+    if(code==="conflict") msgEl.textContent = "حُدّث التطبيق للتوّ من جهة أخرى، وسيُعاد تحميله الآن. أعد المحاولة بعد ذلك.";
+    else if(code==="not_writer" || code==="not_declared"){ msgEl.textContent = "هذا الحساب لا يملك صلاحية تعديل التطبيق. افتحه من حساب المالك أو اطلب صلاحية التعديل."; }
+    else if(["not_granted","consent_required","capability_disabled","capability_removed","transform_error"].includes(code)){ keepOnDevice(c, okMsg); }
+    else if(code==="rate_limited") msgEl.textContent = "حفظتَ عدّة مرّات خلال وقت قصير. انتظر قليلاً ثم أعد المحاولة.";
+    else msgEl.textContent = "تعذّر الحفظ الآن بسبب خلل مؤقت (" + (code||"غير معروف") + "). أعد المحاولة بعد قليل.";
+  }
+}
+function saveTerms(terms, btn, msgEl, okMsg){
+  try{ sessionStorage.setItem("rh-tab-after", "glossary"); }catch(e){}
+  return saveContent({terms, proverbs: DATA.proverbs, ignored: DATA.ignored}, btn, msgEl, okMsg);
+}
+function saveProverbs(proverbs, btn, msgEl, okMsg){
+  try{ sessionStorage.setItem("rh-tab-after", "home"); }catch(e){}
+  return saveContent({terms: DATA.terms, proverbs, ignored: DATA.ignored}, btn, msgEl, okMsg);
+}
+
+/* --- proverb editing --- */
+function openProverbForm(ix){
+  const p = ix!=null ? DATA.proverbs[ix] : {text:"", meaning:"", book:"", si:null};
+  const readable = DATA.books.filter(b => b.readable);
+  const storyOpts = id => id && BOOK_TEXT[id] ? BOOK_TEXT[id].map((s,i) => `<option value="${i}" ${String(i)===String(p.si)&&id===p.book?"selected":""}>${esc(s.title)}</option>`).join("") : "";
+  const sh = $("#sheet");
+  sh.innerHTML = `<form class="sheet" id="pv-form" role="dialog" aria-modal="true" aria-labelledby="pf-h" novalidate>
+    <h3 id="pf-h" style="font-size:20px">${ix!=null ? "تعديل المثل" : "إضافة مثل جديد"}</h3>
+    <div class="field"><label for="pf-text">المثل</label><input id="pf-text" required value="${esc(p.text)}" placeholder="مثال: الجار قبل الدار"></div>
+    <div class="field"><label for="pf-meaning">معناه</label><textarea id="pf-meaning" required placeholder="اشرح متى يُقال المثل وما معناه">${esc(p.meaning)}</textarea></div>
+    <div class="field"><label for="pf-book">ورد في كتاب <small>(اختياري)</small></label><select id="pf-book"><option value="">— لا يرتبط بكتاب —</option>${readable.map(b => `<option value="${b.id}" ${b.id===p.book?"selected":""}>${esc(b.title)}</option>`).join("")}</select></div>
+    <div class="field" id="pf-story-wrap" ${p.book ? "" : "hidden"}><label for="pf-story">القصة</label><select id="pf-story">${storyOpts(p.book)}</select><small>يظهر تحت المثل زرّ يفتح هذه القصة.</small></div>
+    <p class="form-msg" id="pf-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn" type="submit" id="pf-save">حفظ المثل</button><button class="btn ghost" type="button" data-close>إلغاء</button></div>
+  </form>`;
+  sh.hidden = false; $("#pf-text").focus();
+  $("#pf-book").addEventListener("change", e => { const id = e.target.value; $("#pf-story").innerHTML = storyOpts(id); $("#pf-story-wrap").hidden = !id; });
+  $("#pv-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const text = $("#pf-text").value.trim().replace(/^[«"]|[»"]$/g,""), meaning = $("#pf-meaning").value.trim();
+    if(!text || !meaning){ $("#pf-msg").textContent = "اكتب المثل ومعناه قبل الحفظ."; return; }
+    const dup = DATA.proverbs.findIndex((x,i) => i!==ix && norm(x.text)===norm(text));
+    if(dup>=0){ $("#pf-msg").textContent = "هذا المثل موجود في القائمة."; return; }
+    const book = $("#pf-book").value;
+    const entry = {text, meaning}; if(book){ entry.book = book; entry.si = Number($("#pf-story").value); }
+    const list = DATA.proverbs.slice();
+    if(ix!=null) list[ix] = entry; else list.push(entry);
+    await saveProverbs(list, $("#pf-save"), $("#pf-msg"), ix!=null ? "حُفظ تعديل المثل" : "أُضيف المثل");
+  });
+}
+function openProverbDelete(ix){
+  const p = DATA.proverbs[ix]; const sh = $("#sheet");
+  sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pd-h">
+    <h3 id="pd-h" style="font-size:20px">حذف مثل «${esc(p.text)}»؟</h3>
+    <p class="muted">سيُحذف المثل من قائمة «مثل اليوم» لجميع المستخدمين.</p>
+    <p class="form-msg" id="pd-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn danger" type="button" id="pd-yes">حذف المثل</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></div>`;
+  sh.hidden = false; $("#pd-yes").focus();
+  $("#pd-yes").addEventListener("click", () => saveProverbs(DATA.proverbs.filter((_,i) => i!==ix), $("#pd-yes"), $("#pd-msg"), "حُذف المثل"));
+}
+$("#pv-add").addEventListener("click", () => openProverbForm(null));
+$("#pv-edit").addEventListener("click", () => { if(DATA.proverbs.length) openProverbForm(pvi); });
+$("#pv-del").addEventListener("click", () => { if(DATA.proverbs.length) openProverbDelete(pvi); });
+
+/* ===== automatic detection of unusual words (runs locally, no AI) ===== */
+let LEX = null, CAND = null, candShown = 40, candFilter = "all";
+const nz = w => w.replace(/[ً-ٰٟـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");
+const C_PRE = ["وبال","وال","فال","بال","كال","لل","ال","و","ف","ب","ل","ك"];
+const C_SUF = ["هما","كما","هم","هن","كم","كن","نا","ها","ه","ك","ي","ين","ون","ات","ان"];
+const G_PRE = ["وهال","هال","وبال","وال","بال","فال","ال","لل","و","ل"];
+function lexKnown(w){
+  if(LEX.has(w)) return true;
+  const c = new Set([w]);
+  C_PRE.forEach(p => { if(w.startsWith(p) && w.length-p.length>=2) c.add(w.slice(p.length)); });
+  [...c].forEach(x => C_SUF.forEach(sf => { if(x.endsWith(sf) && x.length-sf.length>=2) c.add(x.slice(0,-sf.length)); }));
+  [...c].forEach(x => { if(!x.startsWith("ال")) c.add("ال"+x); });
+  for(const x of c) if(LEX.has(x)) return true;
+  return false;
+}
+const gkey = w => { for(const p of G_PRE){ if(w.startsWith(p) && w.length-p.length>=3) return w.slice(p.length); } return w; };
+function glossaryKeys(){
+  const k = new Set();
+  DATA.terms.forEach(t => (t.forms||[t.w]).concat([t.w]).forEach(f => { const n = nz(f); k.add(n); k.add(gkey(n)); }));
+  return k;
+}
+function buildCands(){
+  if(!LEX) LEX = new Set(document.getElementById("d-lex").textContent.split(" "));
+  const inGloss = glossaryKeys(), ign = new Set(DATA.ignored.map(nz));
+  const groups = new Map(), speakers = new Map(), known = new Map();
+  for(const b of DATA.books){
+    const st = BOOK_TEXT[b.id]; if(!st || b.ltr) continue;
+    st.forEach((s,si) => s.paras.forEach((p,pi) => {
+      const sm = p.match(/^\s*([ء-يً-ْ]+)\s*:/); if(sm){ const sk = gkey(nz(sm[1])); speakers.set(sk,(speakers.get(sk)||0)+1); }
+      for(const m of p.matchAll(/[ء-يً-ْٰـ]+/g)){
+        const raw = m[0], w = nz(raw); if(w.length<3) continue;
+        let kn = known.get(w); if(kn===undefined){ kn = lexKnown(w); known.set(w,kn); } if(kn) continue;
+        const g = gkey(w);
+        let e = groups.get(g); if(!e){ e = {key:g, n:0, forms:new Map(), ex:null}; groups.set(g,e); }
+        e.n++; e.forms.set(raw,(e.forms.get(raw)||0)+1);
+        if(!e.ex) e.ex = {book:b.id, si, pi, raw};
+      }
+    }));
+  }
+  const all = [];
+  for(const e of groups.values()){
+    if(inGloss.has(e.key)) continue;
+    const forms = [...e.forms.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+    if(forms.some(f => inGloss.has(nz(f)))) continue;
+    all.push({key:e.key, n:e.n, forms, word:forms[0], ex:e.ex, name:(speakers.get(e.key)||0)>=2 || !!(SUGG[e.key] && SUGG[e.key].a==="n"), ignored: ign.has(e.key) || forms.some(f => ign.has(nz(f)))});
+  }
+  all.sort((a,b)=>b.n-a.n || a.key.localeCompare(b.key,"ar"));
+  CAND = all;
+}
+function renderCands(){
+  if(!CAND) buildCands();
+  const q = nz(($("#cand-q").value||"").trim());
+  let list = CAND.filter(c => candFilter==="ignored" ? c.ignored : !c.ignored);
+  if(candFilter==="noname") list = list.filter(c => !c.name && !(SUGG[c.key] && SUGG[c.key].a==="n"));
+  if(candFilter==="sugg") list = list.filter(c => SUGG[c.key] && SUGG[c.key].a==="t");
+  if(q) list = list.filter(c => c.key.includes(q) || c.forms.some(f => nz(f).includes(q)));
+  const open = CAND.filter(c => !c.ignored).length;
+  $("#cand-count").textContent = candFilter==="ignored" ? `${list.length} مستبعدة` : `${list.length} كلمة`;
+  $("#cand-open").textContent = `الكلمات المرشّحة للمعجم (${open})`;
+  const shown = list.slice(0, candShown);
+  $("#cands").innerHTML = shown.length ? shown.map(c => {
+    const st = BOOK_TEXT[c.ex.book][c.ex.si], para = st.paras[c.ex.pi];
+    return `<article class="cand">
+      <div class="ch"><b>${esc(c.word)}</b><span class="n">وردت ${c.n===1 ? "مرة واحدة" : c.n===2 ? "مرتين" : c.n<=10 ? c.n + " مرات" : c.n + " مرة"}${c.name ? ` <span class="tagname">اسم محتمل</span>` : ""}</span></div>
+      <p class="snip">${snippet(para, nz(c.ex.raw))}</p>
+      <p class="vars">من قصة «${esc(st.title)}» – ${esc(bookOf(c.ex.book).title)}${c.forms.length>1 ? ` · صيغها في النصوص: ${c.forms.slice(0,6).map(esc).join("، ")}` : ""}</p>
+      ${c.ignored ? "" : suggBox(c)}
+      <div class="term-actions">${c.ignored
+        ? `<button class="mini" type="button" data-cu="${esc(c.key)}">إعادة إلى المرشّحات</button>`
+        : candButtons(c)}</div>
+    </article>`;
+  }).join("") : `<p class="empty">${candFilter==="ignored" ? "لا توجد كلمات مستبعدة." : "لا توجد كلمات مرشّحة مطابقة."}</p>`;
+  renderBulk();
+  $("#cand-more").hidden = list.length <= candShown;
+  if(list.length > candShown) $("#cand-more").textContent = `عرض المزيد (${list.length - candShown} متبقية)`;
+}
+const SUGG = JSON.parse(document.getElementById("d-sugg").textContent);
+const SKIP_WHY = {n:"اسم علم أو لقب لشخصية في القصص", x:"كلمة فصيحة مفهومة، أو صيغة من كلام أنور الأهتر بلثغته، أو خطأ في نصّ الكتاب", q:""};
+function suggBox(c){
+  const s = SUGG[c.key]; if(!s || s.a==="q") return "";
+  if(s.a==="t") return `<div class="sugg"><span class="lbl${s.c ? "" : " warn"}">${s.c ? "معنى مقترح – راجعه قبل اعتماده" : "معنى مقترح غير مؤكّد – يحتاج مراجعة"}</span><span>${esc(s.d)}</span><span class="en" lang="en">${esc(s.en)}</span></div>`;
+  return "";   /* no exclusion advice: every word is the writer's decision */
+}
+function candButtons(c){
+  const k = esc(c.key), ca = ((DATA.media || {}).cand || {})[c.key];
+  return `<button class="mini ok" type="button" data-cok="${k}">اعتماد</button><button class="mini" type="button" data-ced="${k}">تعديل ثم اعتماد</button>`
+    + (ca ? `<button class="mini play-btn" type="button" data-cplay="${k}">استمع إلى النطق</button>` : "")
+    + `<button class="mini" type="button" data-caud="${k}">${ca ? "استبدال النطق" : "إضافة نطق"}</button><button class="mini" type="button" data-cr="${k}">اقرأ في القصة</button><button class="mini danger" type="button" data-ci="${k}">استبعاد</button>`;
+}
+function termFromCand(c, over){
+  const s = SUGG[c.key] || {};
+  const nm = !s.d && c.name;
+  const ca = ((DATA.media || {}).cand || {})[c.key];
+  return Object.assign({w: c.word, d: s.d || (nm ? "اسم علم لإحدى الشخصيات في قصص الكاتب." : ""), en: s.en || (nm ? "Proper name of a character in the author's stories." : ""), cat: s.cat || "dialect", forms: c.forms.slice(0,8)}, ca ? {audio: ca} : {}, over || {});
+}
+function stageTerms(newTerms, msg){
+  const c = {terms: newTerms, proverbs: DATA.proverbs, ignored: DATA.ignored};
+  setPending(c); DATA.terms = newTerms;
+  rebuildTermRe(); renderTerms();
+  if(CAND){ const g = glossaryKeys(); CAND = CAND.filter(x => !g.has(x.key) && !x.forms.some(f => g.has(nz(f)))); }
+  renderCands(); renderPendingBar(); if(msg) toast(msg);
+}
+function renderBulk(){
+  const box = $("#cand-bulk"); box.innerHTML = ""; box.hidden = true; return;   /* bulk approve/exclude removed: each word is decided one by one */
+  const open = CAND.filter(c => !c.ignored);
+  const ok = open.filter(c => SUGG[c.key] && SUGG[c.key].a==="t" && SUGG[c.key].c).length;
+  const sk = open.filter(c => SUGG[c.key] && (SUGG[c.key].a==="n" || SUGG[c.key].a==="x")).length;
+  box.innerHTML = (ok ? `<button class="btn ghost" type="button" data-bulk="ok">اعتماد كلّ المعاني المؤكّدة (${ok})</button>` : "") + (sk ? `<button class="btn ghost" type="button" data-bulk="skip">استبعاد كلّ ما يُقترح استبعاده (${sk})</button>` : "");
+}
+function openBulk(kind){
+  const open = CAND.filter(c => !c.ignored);
+  const list = kind==="ok" ? open.filter(c => SUGG[c.key] && SUGG[c.key].a==="t" && SUGG[c.key].c) : open.filter(c => SUGG[c.key] && (SUGG[c.key].a==="n" || SUGG[c.key].a==="x"));
+  const sh = $("#sheet");
+  sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="bk-h">
+    <h3 id="bk-h" style="font-size:20px">${kind==="ok" ? `اعتماد ${list.length} معنى مقترحاً؟` : `استبعاد ${list.length} كلمة؟`}</h3>
+    <p class="muted">${kind==="ok" ? "ستُضاف هذه الكلمات بمعانيها المقترحة إلى المعجم دفعةً واحدة، وتُميَّز في القصص. تبقى المعاني غير المؤكّدة في القائمة لتراجعها واحدةً واحدة. ويمكنك تعديل أي مفردة أو حذفها لاحقاً من المعجم." : "ستُنقل هذه الكلمات إلى تبويب «المستبعدة»، ويمكنك استرجاع أيٍّ منها لاحقاً."}</p>
+    <p class="muted" style="font-size:13.5px">${list.slice(0,30).map(c => esc(c.word)).join("، ")}${list.length>30 ? "، …" : ""}</p>
+    <div class="btn-row"><button class="btn" type="button" id="bk-yes">${kind==="ok" ? "اعتماد الكلّ" : "استبعاد الكلّ"}</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></div>`;
+  sh.hidden = false; $("#bk-yes").focus();
+  $("#bk-yes").addEventListener("click", () => {
+    closeSheet();
+    if(kind==="ok") stageTerms(DATA.terms.concat(list.map(c => termFromCand(c))), `اعتُمد ${list.length} معنى، انشرها للجميع من الشريط أعلاه`);
+    else setIgnored(DATA.ignored.concat(list.map(c => c.key)), `استُبعدت ${list.length} كلمة`);
+  });
+}
+function setIgnored(list, msg){
+  const c = {terms: DATA.terms, proverbs: DATA.proverbs, ignored: list};
+  setPending(c); DATA.ignored = list;
+  if(CAND){ const s = new Set(list.map(nz)); CAND.forEach(x => x.ignored = s.has(x.key) || x.forms.some(f => s.has(nz(f)))); }
+  renderCands(); renderPendingBar(); toast(msg);
+}
+$("#cand-open").addEventListener("click", () => {
+  const w = $("#cand-wrap"); w.hidden = !w.hidden;
+  if(!w.hidden){ $("#cand-open").disabled = true; setTimeout(() => { candShown = 40; renderCands(); $("#cand-open").disabled = false; w.scrollIntoView({block:"start"}); }, 30); }
+});
+$("#cand-q").addEventListener("input", () => { candShown = 40; renderCands(); });
+$("#cand-more").addEventListener("click", () => { candShown += 40; renderCands(); });
+$("#cand-wrap").addEventListener("click", e => {
+  const cf = e.target.closest("[data-cf]");
+  if(cf){ candFilter = cf.dataset.cf; document.querySelectorAll("[data-cf]").forEach(b => b.setAttribute("aria-pressed", b===cf)); candShown = 40; renderCands(); return; }
+  const find = k => CAND.find(c => c.key===k);
+  const bk = e.target.closest("[data-bulk]"); if(bk){ openBulk(bk.dataset.bulk); return; }
+  const ok = e.target.closest("[data-cok]");
+  if(ok){ const c = find(ok.dataset.cok); const t0 = termFromCand(c); if(!t0.d){ openTermForm(null, Object.assign(t0, {fromCand:true})); $("#tf-d").focus(); toast("اكتب معنى الكلمة ثم احفظها لاعتمادها"); return; } stageTerms(DATA.terms.concat([termFromCand(c)]), `اعتُمدت «${c.word}» وأُضيفت إلى المعجم`); return; }
+  const ed = e.target.closest("[data-ced]");
+  if(ed){ const c = find(ed.dataset.ced); openTermForm(null, termFromCand(c, {fromCand:true})); $("#tf-d").focus(); return; }
+  const a = e.target.closest("[data-ca]");
+  if(a){ const c = find(a.dataset.ca); openTermForm(null, termFromCand(c, {d:"", en:"", cat:"dialect", fromCand:true})); $("#tf-d").focus(); return; }
+  const cp = e.target.closest("[data-cplay]"); if(cp){ const p = ((DATA.media||{}).cand||{})[cp.dataset.cplay]; if(p) playAudio(p); return; }
+  const au = e.target.closest("[data-caud]"); if(au){ editCandAudio(find(au.dataset.caud)); return; }
+  const r = e.target.closest("[data-cr]");
+  if(r){ const c = find(r.dataset.cr); RD.hl = nz(c.ex.raw); openReader(c.ex.book, c.ex.si); return; }
+  const i = e.target.closest("[data-ci]");
+  if(i){ const c = find(i.dataset.ci); setIgnored([...DATA.ignored, c.key], `استُبعدت «${c.word}» على هذا الجهاز`); return; }
+  const u = e.target.closest("[data-cu]");
+  if(u){ const k = u.dataset.cu; const c = find(k); setIgnored(DATA.ignored.filter(x => nz(x)!==k && !(c && c.forms.some(f => nz(f)===nz(x)))), `أُعيدت «${c ? c.word : k}» إلى المرشّحات`); }
+});
+/* ===== audio & video (files are published next to the page) ===== */
+const MEDIA_LOCAL = {};
+/* ===== cloud storage (Supabase) ===== */
+const SB_URL = "https://ftnqvnpcioqllguwzzua.supabase.co", SB_KEY = "sb_publishable_YPtZBhpGygQRWDVNgSAMxw_2admsFKn";
+let SB = null;
+function sbClient(){ if(!SB && window.supabase && window.supabase.createClient){ try{ SB = window.supabase.createClient(SB_URL, SB_KEY); }catch(e){} } return SB; }
+function waitSB(ms){ ms = ms || 10000; return new Promise(res => { const t0 = Date.now(); (function chk(){ if(sbClient()) return res(SB); if(Date.now()-t0 > ms) return res(null); setTimeout(chk, 150); })(); }); }
+const mediaSrc = p => MEDIA_LOCAL[p] || (/^(https?:|blob:|data:)/.test(p) ? p : SB_URL + "/storage/v1/object/public/media/" + p.split("/").map(encodeURIComponent).join("/"));
+function cloudErr(e, fallback){
+  const m = String((e && (e.message || e.error)) || ""), st = Number(e && (e.statusCode || e.status));
+  let code = fallback || "upstream_error";
+  if(/row-level security|violates|permission|not authorized|unauthorized|jwt/i.test(m) || st===401 || st===403) code = "not_writer";
+  else if(/too large|maximum allowed size|payload/i.test(m) || st===413) code = "too_large";
+  else if(/mime|content.?type/i.test(m) || st===415) code = "invalid_content";
+  else if(/failed to fetch|networkerror|network/i.test(m)) code = "network";
+  const er = new Error(m); er.code = code; return er;
+}
+const CLOUD = {
+  async publish(c, extra){
+    const sb = await waitSB(); if(!sb) throw cloudErr(null, "network");
+    const st = sb.storage.from("media"), del = [];
+    for(const [path, v] of Object.entries(extra || {})){
+      if(v===null){ del.push(path); continue; }
+      const r = await st.upload(path, v.content, {contentType: v.contentType, upsert: true, cacheControl: "31536000"});
+      if(r.error) throw cloudErr(r.error);
+    }
+    const now = new Date().toISOString();
+    const rows = [["terms", c.terms], ["proverbs", c.proverbs], ["ignored", c.ignored || DATA.ignored], ["media", c.media || DATA.media]].map(([key, value]) => ({key, value, updated_at: now}));
+    const r = await sb.from("kv").upsert(rows);
+    if(r.error) throw cloudErr(r.error);
+    const gone = del.filter(x => x && !/^(https?:|blob:|data:)/.test(x));
+    if(gone.length){ try{ await st.remove(gone); }catch(e){} }
+  }
+};
+async function loadCloud(){
+  const sb = await waitSB(); if(!sb) return;
+  let r; try{ r = await sb.from("kv").select("key,value"); }catch(e){ return; }
+  if(!r || r.error || !r.data || !r.data.length) return;
+  const m = Object.fromEntries(r.data.map(x => [x.key, x.value]));
+  const c = {terms: m.terms || DATA.terms, proverbs: m.proverbs || DATA.proverbs, ignored: m.ignored || DATA.ignored, media: m.media || DATA.media};
+  rebase(c);
+  const p = getPending();
+  DATA.terms = p ? p.terms : c.terms; DATA.proverbs = p ? p.proverbs : c.proverbs; DATA.ignored = (p && p.ignored) || c.ignored; DATA.media = c.media;
+  rebuildTermRe(); renderTerms(); fixPvi(); renderProverb(); renderVideos(); renderPendingBar();
+  CAND = null; if(!$("#cand-wrap").hidden) renderCands();
+  if(!$("#view-reader").hidden && RD.book) showStory();
+}
+let PLAYER = null;
+function playAudio(p){ try{ if(PLAYER){ PLAYER.pause(); } PLAYER = new Audio(mediaSrc(p)); PLAYER.play().catch(() => toast("تعذّر تشغيل التسجيل")); }catch(e){ toast("تعذّر تشغيل التسجيل"); } }
+const MAX_BYTES = 50 * 1024 * 1024;
+const EXT = {"audio/mpeg":"mp3","audio/mp3":"mp3","audio/mp4":"m4a","audio/x-m4a":"m4a","audio/m4a":"m4a","audio/aac":"aac","audio/webm":"webm","audio/ogg":"ogg","audio/wav":"wav","audio/x-wav":"wav","audio/3gpp":"3gp","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov","video/3gpp":"3gp"};
+function fileType(f, kind){
+  let t = (f.type || "").toLowerCase();
+  if(!t){ const e = (f.name.split(".").pop() || "").toLowerCase(); t = ({mp3:"audio/mpeg",m4a:"audio/mp4",aac:"audio/aac",wav:"audio/wav",ogg:"audio/ogg",webm:kind+"/webm",mp4:kind+"/mp4",mov:"video/quicktime","3gp":kind+"/3gpp"})[e] || (kind==="audio" ? "audio/mp4" : "video/mp4"); }
+  if(t==="audio/x-m4a" || t==="audio/m4a") t = "audio/mp4";
+  if(t==="audio/mp3") t = "audio/mpeg";
+  if(t==="audio/x-wav") t = "audio/wav";
+  return t;
+}
+const slug = s => { let h = 0; for(const ch of s) h = (h*31 + ch.codePointAt(0)) >>> 0; return h.toString(36); };
+function rebase(c){ PAGE = {terms: c.terms.slice(), proverbs: c.proverbs.slice(), ignored: (c.ignored||[]).slice()}; PAGE_HASH = hashStr(JSON.stringify(PAGE)); }
+async function publishSite(c, extra){ await ART.publish(c, extra); rebase(c); return "files"; }
+function applySaved(c, okMsg){
+  DATA.terms = c.terms; DATA.proverbs = c.proverbs; DATA.ignored = c.ignored || DATA.ignored; if(c.media) DATA.media = c.media;
+  rebuildTermRe(); renderTerms(); fixPvi(); renderProverb(); renderPendingBar(); renderVideos();
+  CAND = null; if(!$("#cand-wrap").hidden) renderCands();
+  if(!$("#view-reader").hidden && RD.book) showStory();
+  closeSheet();
+  if(JUST_SAVED){ const t = DATA.terms.find(x => x.w===JUST_SAVED.w) || JUST_SAVED; JUST_SAVED = null; showSavedTerm(t); }
+  else toast(okMsg);
+}
+function mediaError(err){
+  const code = err && err.code;
+  if(code==="conflict") return "حُدّث التطبيق للتوّ من جهة أخرى، وسيُعاد تحميله الآن. أعد المحاولة بعد ذلك.";
+  if(code==="too_large") return "الملف أكبر من الحدّ المسموح. اختر تسجيلاً أقصر أو بجودة أقل.";
+  if(code==="invalid_content") return "صيغة الملف غير مدعومة. استخدم ملفاً صوتياً بصيغة mp3 أو m4a، أو فيديو بصيغة mp4.";
+  if(code==="not_writer" || code==="not_declared") return "انتهت جلسة المحرّر أو لا يملك هذا الحساب صلاحية التعديل. سجّل الدخول من جديد ثم أعد المحاولة.";
+  if(code==="network") return "تعذّر الاتصال بالخادم. تأكّد من الإنترنت ثم أعد المحاولة.";
+  if(code==="rate_limited") return "حفظتَ عدّة مرّات خلال وقت قصير. انتظر قليلاً ثم أعد المحاولة.";
+  return "تعذّر الحفظ الآن بسبب خلل مؤقت (" + (code || "غير معروف") + "). أعد المحاولة بعد قليل.";
+}
+async function saveMedia(c, extra, btn, msgEl, okMsg, localMap){
+  if(!(await ensureArt(msgEl))) return;
+  btn.disabled = true; const label = btn.textContent; btn.textContent = "جارٍ الرفع والحفظ…"; msgEl.textContent = "";
+  try{
+    await ART.publish(c, extra);
+    rebase(c); clearPending(); Object.assign(MEDIA_LOCAL, localMap || {});
+    applySaved(c, okMsg);
+  }catch(err){
+    btn.disabled = false; btn.textContent = label;
+    const code = err && err.code;
+    msgEl.textContent = mediaError(err);
+  }
+}
+async function ensureArt(msgEl){
+  if(ART) return ART;
+  msgEl.textContent = "سجّل الدخول بحساب المحرّر أولاً: انقر سطر الحقوق أسفل صفحة «عن الكاتب» خمس مرات.";
+  return null;
+}
+function cloneContent(){ return {terms: DATA.terms.map(t => Object.assign({}, t)), proverbs: DATA.proverbs, ignored: DATA.ignored, media: JSON.parse(JSON.stringify(DATA.media))}; }
+/* a sheet that lets the editor pick a recording, hear it, then save it */
+function openAudioSheet({title, hint, current, onSave, onDelete}){
+  const sh = $("#sheet"); let picked = null, url = null;
+  sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="au-h">
+    <h3 id="au-h" style="font-size:20px">${esc(title)}</h3>
+    <p class="muted" style="font-size:14.5px">${hint}</p>
+    ${current ? `<div class="media-box"><span class="lbl">التسجيل الحالي</span><audio controls preload="none" src="${esc(mediaSrc(current))}"></audio></div>` : ""}
+    <div class="btn-row">${CAN_REC ? `<button class="btn rec-btn" type="button" id="au-rec"><span class="rec-dot" aria-hidden="true"></span><span id="au-rec-t">تسجيل الآن</span></button>` : ""}<button class="btn ghost" type="button" id="au-pick">${current ? "اختيار ملف تسجيل جديد" : "اختيار ملف تسجيل"}</button></div>
+    <div class="media-box" id="au-prev" hidden><span class="lbl">التسجيل الذي اخترته – استمع إليه قبل الحفظ</span><audio controls id="au-el"></audio><span class="muted" id="au-info" style="font-size:13px"></span></div>
+    <p class="form-msg" id="au-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn" type="button" id="au-save" disabled>حفظ التسجيل</button>${current && onDelete ? `<button class="btn ghost" type="button" id="au-del" style="color:var(--coral)">حذف التسجيل الحالي</button>` : ""}<button class="btn ghost" type="button" data-close>إلغاء</button></div></div>`;
+  sh.hidden = false; ($("#au-rec") || $("#au-pick")).focus();
+  const input = $("#file-audio");
+  const onPick = (given) => {
+    const f = given instanceof Blob ? given : (input.files && input.files[0]); input.value = ""; if(!f) return;
+    if(f.size > MAX_BYTES){ $("#au-msg").textContent = "حجم الملف " + (f.size/1048576).toFixed(1) + " ميغابايت، والحدّ الأقصى 50 ميغابايت. سجّل مقطعاً أقصر أو بجودة أقل."; return; }
+    picked = f; if(url) URL.revokeObjectURL(url); url = URL.createObjectURL(f);
+    $("#au-el").src = url; $("#au-prev").hidden = false; $("#au-info").textContent = f.name + " · " + (f.size/1048576).toFixed(2) + " ميغابايت";
+    $("#au-save").disabled = false; $("#au-msg").textContent = "";
+  };
+  input.onchange = onPick;
+  $("#au-pick").addEventListener("click", () => { if(REC.on) return; input.click(); });
+  const rb = $("#au-rec"); if(rb) rb.addEventListener("click", () => REC.on ? stopRec() : startRec(rb, $("#au-msg"), onPick));
+  $("#au-save").addEventListener("click", () => { if(picked) onSave(picked, url, $("#au-save"), $("#au-msg")); });
+  const del = $("#au-del"); if(del) del.addEventListener("click", () => onDelete(del, $("#au-msg")));
+}
+const REC_HINT_MIC = "اضغط «تسجيل الآن» وتكلّم، ثم اضغط «إيقاف» واستمع إلى التسجيل قبل حفظه. الحدّ الأقصى للملف 50 ميغابايت.";
+const REC_HINT_FILE = "سجّل الصوت أولاً بتطبيق مسجّل الصوت في هاتفك أو حاسوبك، ثم اضغط «اختيار ملف تسجيل» واختر الملف، واستمع إليه، ثم اضغط «حفظ التسجيل». الحدّ الأقصى للملف 50 ميغابايت.";
+const recHint = () => CAN_REC ? REC_HINT_MIC : REC_HINT_FILE;
+/* direct microphone recording, when the view allows it; the file picker stays as the fallback */
+let CAN_REC = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)
+  && !(document.featurePolicy && document.featurePolicy.allowsFeature && !document.featurePolicy.allowsFeature("microphone"));
+const REC = {on: false, mr: null, stream: null, timer: null};
+function stopRec(){ if(REC.mr && REC.mr.state !== "inactive") REC.mr.stop(); }
+function endRec(){ clearInterval(REC.timer); REC.on = false; if(REC.stream) REC.stream.getTracks().forEach(t => t.stop()); REC.stream = null; }
+async function startRec(btn, msg, done){
+  msg.textContent = "";
+  let stream;
+  try{ stream = await navigator.mediaDevices.getUserMedia({audio: true}); }
+  catch(err){ CAN_REC = false; btn.remove(); msg.textContent = "الميكروفون غير متاح داخل التطبيق. سجّل الكلمة بتطبيق مسجّل الصوت في هاتفك أو حاسوبك، ثم اضغط «اختيار ملف تسجيل» واختر الملف."; return; }
+  const pref = ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t));
+  let mr; try{ mr = pref ? new MediaRecorder(stream, {mimeType: pref, audioBitsPerSecond: 64000}) : new MediaRecorder(stream); }catch(e){ mr = new MediaRecorder(stream); }
+  const chunks = []; REC.mr = mr; REC.stream = stream; REC.on = true;
+  mr.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
+  mr.onstop = () => {
+    endRec(); btn.classList.remove("on"); $("#au-rec-t") && ($("#au-rec-t").textContent = "تسجيل من جديد");
+    const type = (mr.mimeType || pref || "audio/webm").split(";")[0];
+    const f = new File(chunks, "تسجيل-" + new Date().toISOString().slice(0,16).replace(/[:T]/g,"-") + "." + (EXT[type] || "webm"), {type});
+    if(f.size) done(f); else msg.textContent = "لم يُلتقط أي صوت. تأكّد من الميكروفون وأعد المحاولة.";
+  };
+  mr.start(1000);
+  const t0 = Date.now(); btn.classList.add("on");
+  const tick = () => { const s = Math.floor((Date.now()-t0)/1000); const el = $("#au-rec-t"); if(el) el.textContent = "إيقاف · " + Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+  tick(); REC.timer = setInterval(tick, 500);
+}
+function editTermAudio(ix){
+  const t = DATA.terms[ix];
+  openAudioSheet({title: `نطق «${t.w}»`, hint: recHint(), current: t.audio,
+    onSave(f, url, btn, msg){
+      const type = fileType(f, "audio"), path = `audio/t/${slug(t.w)}-${Date.now().toString(36)}.${EXT[type] || "m4a"}`;
+      const c = cloneContent(); const old = c.terms[ix].audio; c.terms[ix].audio = path;
+      const extra = {[path]: {content: f, contentType: type}}; if(old) extra[old] = null;
+      saveMedia(c, extra, btn, msg, `حُفظ نطق «${t.w}»`, {[path]: url});
+    },
+    onDelete(btn, msg){ const c = cloneContent(); const old = c.terms[ix].audio; delete c.terms[ix].audio; saveMedia(c, {[old]: null}, btn, msg, `حُذف نطق «${t.w}»`); }
+  });
+}
+function editCandAudio(cd){
+  const cur = ((DATA.media || {}).cand || {})[cd.key];
+  openAudioSheet({title: `نطق «${cd.word}»`, hint: recHint() + " يُحفظ النطق مع الكلمة، ويظهر في المعجم تلقائياً عند اعتمادها.", current: cur,
+    onSave(f, url, btn, msg){
+      const type = fileType(f, "audio"), path = `audio/t/${slug(cd.word)}-${Date.now().toString(36)}.${EXT[type] || "m4a"}`;
+      const c = cloneContent(); c.media.cand = c.media.cand || {}; c.media.cand[cd.key] = path;
+      const extra = {[path]: {content: f, contentType: type}}; if(cur) extra[cur] = null;
+      saveMedia(c, extra, btn, msg, `حُفظ نطق «${cd.word}»`, {[path]: url});
+    },
+    onDelete(btn, msg){ const c = cloneContent(); delete c.media.cand[cd.key]; saveMedia(c, {[cur]: null}, btn, msg, `حُذف نطق «${cd.word}»`); }
+  });
+}
+function editStoryAudio(sk){
+  const [bid, si] = sk.split(":"); const st = BOOK_TEXT[bid][Number(si)];
+  const cur = (DATA.media.story || {})[sk];
+  openAudioSheet({title: `تسجيل صوتي: ${st.title}`, hint: recHint() + " ويمكن تقسيم القصة الطويلة إلى أكثر من تسجيل وضغطها قبل الرفع.", current: cur,
+    onSave(f, url, btn, msg){
+      const type = fileType(f, "audio"), path = `audio/s/${bid}-${si}-${Date.now().toString(36)}.${EXT[type] || "m4a"}`;
+      const c = cloneContent(); c.media.story = c.media.story || {}; c.media.story[sk] = path;
+      const extra = {[path]: {content: f, contentType: type}}; if(cur) extra[cur] = null;
+      saveMedia(c, extra, btn, msg, "حُفظ التسجيل الصوتي للقصة", {[path]: url});
+    },
+    onDelete(btn, msg){ const c = cloneContent(); delete c.media.story[sk]; saveMedia(c, {[cur]: null}, btn, msg, "حُذف التسجيل الصوتي"); }
+  });
+}
+$("#terms").addEventListener("click", e => { const a = e.target.closest("[data-taud]"); if(a) editTermAudio(Number(a.dataset.taud)); });
+$("#rd-story").addEventListener("click", e => {
+  const a = e.target.closest("[data-saud]"); if(a){ editStoryAudio(a.dataset.saud); return; }
+  const d = e.target.closest("[data-sauddel]"); if(d) editStoryAudio(d.dataset.sauddel);
+});
+/* videos */
+const hostName = u => { try{ const h = new URL(u).hostname.replace(/^www\./,""); return /youtu/.test(h) ? "يوتيوب" : /facebook|fb\.watch/.test(h) ? "فيسبوك" : /instagram/.test(h) ? "إنستغرام" : h; }catch(e){ return ""; } };
+function renderVideos(){
+  const vids = (DATA.media.videos || []);
+  $("#vid-count").textContent = vids.length + (vids.length===1 ? " فيديو" : " فيديوهات");
+  $("#tile-vids").textContent = vids.length ? vids.length + (vids.length===1 ? " فيديو" : " فيديوهات") : "مقاطع ولقاءات";
+  $("#vid-add").hidden = !CAN_EDIT;
+  $("#vids").innerHTML = vids.length ? vids.map((v,i) => `<article class="vid">
+      <h3>${esc(v.title)}</h3>
+      ${v.desc ? `<p class="muted" style="font-size:15px">${esc(v.desc)}</p>` : ""}
+      ${v.file ? `<video controls preload="metadata" playsinline src="${esc(mediaSrc(v.file))}"></video>` : ""}
+      ${v.url ? `<a class="btn" href="${esc(v.url)}" target="_blank" rel="noopener">مشاهدة على ${esc(hostName(v.url) || "الموقع")}</a>` : ""}
+      ${CAN_EDIT ? `<div class="term-actions"><button class="mini" type="button" data-vedit="${i}">تعديل</button><button class="mini danger" type="button" data-vdel="${i}">حذف</button></div>` : ""}
+    </article>`).join("") : `<p class="empty">لم تُضف فيديوهات بعد.</p>`;
+}
+function openVideoForm(ix){
+  const v = ix!=null ? DATA.media.videos[ix] : {title:"", desc:"", url:""};
+  let picked = null, url = null;
+  const sh = $("#sheet");
+  sh.innerHTML = `<form class="sheet" id="vf" role="dialog" aria-modal="true" aria-labelledby="vf-h" novalidate>
+    <h3 id="vf-h" style="font-size:20px">${ix!=null ? "تعديل الفيديو" : "إضافة فيديو"}</h3>
+    <div class="field"><label for="vf-t">العنوان</label><input id="vf-t" required value="${esc(v.title)}" placeholder="مثال: لقاء عن كتاب شذرات من التراث"></div>
+    <div class="field"><label for="vf-d">وصف قصير <small>(اختياري)</small></label><textarea id="vf-d" placeholder="عمّ يتحدّث الفيديو؟">${esc(v.desc||"")}</textarea></div>
+    <div class="field"><label for="vf-u">رابط الفيديو <small>(يوتيوب أو فيسبوك أو غيرهما)</small></label><input id="vf-u" dir="ltr" inputmode="url" value="${esc(v.url||"")}" placeholder="https://www.youtube.com/watch?v=..."><small>الطريقة الأفضل للفيديوهات الطويلة: ارفعها على قناة الكاتب في يوتيوب وضع رابطها هنا.</small></div>
+    <div class="field"><label>أو ملف فيديو قصير <small>(حتى 50 ميغابايت، ويُعرض داخل التطبيق)</small></label><button class="btn ghost" type="button" id="vf-pick">${v.file ? "استبدال ملف الفيديو" : "اختيار ملف فيديو"}</button><span class="muted" id="vf-info" style="font-size:13px">${v.file ? "يوجد ملف فيديو مرفوع لهذا العنصر." : ""}</span></div>
+    <p class="form-msg" id="vf-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn" type="submit" id="vf-save">حفظ الفيديو</button><button class="btn ghost" type="button" data-close>إلغاء</button></div>
+  </form>`;
+  sh.hidden = false; $("#vf-t").focus();
+  const input = $("#file-video");
+  input.onchange = () => { const f = input.files && input.files[0]; input.value = ""; if(!f) return;
+    if(f.size > MAX_BYTES){ $("#vf-msg").textContent = "حجم الفيديو " + (f.size/1048576).toFixed(1) + " ميغابايت، والحدّ الأقصى 50 ميغابايت. للفيديوهات الأطول ارفعها على يوتيوب وضع الرابط."; return; }
+    picked = f; if(url) URL.revokeObjectURL(url); url = URL.createObjectURL(f); $("#vf-info").textContent = f.name + " · " + (f.size/1048576).toFixed(1) + " ميغابايت"; $("#vf-msg").textContent = ""; };
+  $("#vf-pick").addEventListener("click", () => input.click());
+  $("#vf").addEventListener("submit", e => {
+    e.preventDefault();
+    const title = $("#vf-t").value.trim(), desc = $("#vf-d").value.trim(); let link = $("#vf-u").value.trim();
+    if(!title){ $("#vf-msg").textContent = "اكتب عنوان الفيديو."; return; }
+    if(link && !/^https?:\/\//i.test(link)) link = "https://" + link;
+    if(link){ try{ new URL(link); }catch(err){ $("#vf-msg").textContent = "الرابط غير صحيح. انسخه كما هو من يوتيوب أو فيسبوك."; return; } }
+    if(!link && !picked && !v.file){ $("#vf-msg").textContent = "ضع رابط الفيديو أو اختر ملف فيديو."; return; }
+    const c = cloneContent(); c.media.videos = c.media.videos || [];
+    const entry = {id: v.id || ("v" + Date.now().toString(36)), title, desc}; if(link) entry.url = link;
+    const extra = {}, local = {};
+    if(picked){ const type = fileType(picked, "video"); const path = `video/${entry.id}-${Date.now().toString(36)}.${EXT[type] || "mp4"}`; entry.file = path; extra[path] = {content: picked, contentType: type}; local[path] = url; if(v.file) extra[v.file] = null; }
+    else if(v.file) entry.file = v.file;
+    if(ix!=null) c.media.videos[ix] = entry; else c.media.videos.unshift(entry);
+    if(Object.keys(extra).length) saveMedia(c, extra, $("#vf-save"), $("#vf-msg"), ix!=null ? "حُفظ تعديل الفيديو" : "أُضيف الفيديو", local);
+    else saveMedia(c, {}, $("#vf-save"), $("#vf-msg"), ix!=null ? "حُفظ تعديل الفيديو" : "أُضيف الفيديو");
+  });
+}
+function openVideoDelete(ix){
+  const v = DATA.media.videos[ix], sh = $("#sheet");
+  sh.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="vd-h"><h3 id="vd-h" style="font-size:20px">حذف «${esc(v.title)}»؟</h3>
+    <p class="muted">سيُحذف الفيديو من التطبيق لجميع المستخدمين.</p><p class="form-msg" id="vd-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn danger" type="button" id="vd-yes">حذف الفيديو</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></div>`;
+  sh.hidden = false; $("#vd-yes").focus();
+  $("#vd-yes").addEventListener("click", () => { const c = cloneContent(); c.media.videos.splice(ix,1); saveMedia(c, v.file ? {[v.file]: null} : {}, $("#vd-yes"), $("#vd-msg"), "حُذف الفيديو"); });
+}
+$("#vid-add").addEventListener("click", () => openVideoForm(null));
+$("#vids").addEventListener("click", e => {
+  const ed = e.target.closest("[data-vedit]"); if(ed){ openVideoForm(Number(ed.dataset.vedit)); return; }
+  const dl = e.target.closest("[data-vdel]"); if(dl) openVideoDelete(Number(dl.dataset.vdel));
+});
+/* editor mode: tap the rights line in «عن الكاتب» five times, then sign in with the editor account */
+function enableEditor(){ CAN_EDIT = true; $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function disableEditor(){ CAN_EDIT = false; ART = null; $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function openLogin(){
+  const sh = $("#sheet");
+  sh.innerHTML = `<form class="sheet" id="lg" role="dialog" aria-modal="true" aria-labelledby="lg-h" novalidate>
+    <h3 id="lg-h" style="font-size:20px">دخول المحرّر</h3>
+    <p class="muted" style="font-size:14.5px">هذا الدخول خاص بمن يدير محتوى التطبيق. بعد الدخول تظهر أزرار الإضافة والتعديل والتسجيل الصوتي.</p>
+    <div class="field"><label for="lg-e">البريد الإلكتروني</label><input id="lg-e" type="email" dir="ltr" autocomplete="username" required></div>
+    <div class="field"><label for="lg-p">كلمة المرور</label><input id="lg-p" type="password" dir="ltr" autocomplete="current-password" required></div>
+    <p class="form-msg" id="lg-msg" aria-live="polite"></p>
+    <div class="btn-row"><button class="btn" type="submit" id="lg-go">دخول</button><button class="btn ghost" type="button" data-close>إلغاء</button></div></form>`;
+  sh.hidden = false; $("#lg-e").focus();
+  $("#lg").addEventListener("submit", async e => {
+    e.preventDefault();
+    const email = $("#lg-e").value.trim(), password = $("#lg-p").value;
+    if(!email || !password){ $("#lg-msg").textContent = "اكتب البريد الإلكتروني وكلمة المرور."; return; }
+    const btn = $("#lg-go"); btn.disabled = true; btn.textContent = "جارٍ الدخول…";
+    const sb = await waitSB();
+    if(!sb){ btn.disabled = false; btn.textContent = "دخول"; $("#lg-msg").textContent = "تعذّر الاتصال بالخادم. تأكّد من الإنترنت ثم أعد المحاولة."; return; }
+    const r = await sb.auth.signInWithPassword({email, password});
+    if(r.error){ btn.disabled = false; btn.textContent = "دخول"; $("#lg-msg").textContent = /confirm/i.test(r.error.message) ? "لم يُفعَّل هذا الحساب بعد." : "البريد الإلكتروني أو كلمة المرور غير صحيحة."; return; }
+    ART = CLOUD; enableEditor(); closeSheet(); toast("أهلاً بك، فُعّل وضع المحرّر"); go("glossary");
+  });
+}
+let taps = 0, tapTimer = null;
+$("#copyline").addEventListener("click", async () => {
+  taps++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { taps = 0; }, 2500);
+  if(taps < 5) return; taps = 0;
+  if(CAN_EDIT){ try{ const sb = await waitSB(3000); if(sb) await sb.auth.signOut(); }catch(e){} disableEditor(); toast("خرجتَ من وضع المحرّر"); }
+  else openLogin();
+});
+$("#term-add").addEventListener("click", () => openTermForm(null));
+$("#terms").addEventListener("click", e => {
+  const ed = e.target.closest("[data-tedit]"); if(ed){ openTermForm(Number(ed.dataset.tedit)); return; }
+  const dl = e.target.closest("[data-tdel]"); if(dl){ openTermDelete(Number(dl.dataset.tdel)); }
+});
+(async () => {
+  try{ localStorage.removeItem("rh-editor"); }catch(e){}
+  const sb = await waitSB(); if(!sb) return;
+  try{ const r = await sb.auth.getSession(); if(r && r.data && r.data.session){ ART = CLOUD; enableEditor(); } }catch(e){}
+  loadCloud();
+})();
+try{ const m = sessionStorage.getItem("rh-toast"); if(m){ sessionStorage.removeItem("rh-toast"); setTimeout(() => toast(m), 400); } }catch(e){}
+
+fixPvi(); renderProverb(); renderBooks(); renderTerms(); renderCont(); renderVideos();
+try{ const w = sessionStorage.getItem("rh-show-term"); if(w){ sessionStorage.removeItem("rh-show-term"); const t = DATA.terms.find(x => x.w===w); if(t) setTimeout(() => showSavedTerm(t), 500); } }catch(e){}
+try{ if(sessionStorage.getItem("rh-tab-after")){ sessionStorage.removeItem("rh-tab-after"); store.set("rh-tab","glossary"); } }catch(e){}
+const hash = (location.hash||"").replace("#","");
+if(hash==="read") openReader("aja");
+else go(TABS.includes(hash) ? hash : (store.get("rh-tab") || "home"));
+</script>

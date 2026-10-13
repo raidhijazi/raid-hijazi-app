@@ -1,0 +1,15 @@
+{
+  "name": "حكايا رائد حجازي",
+  "short_name": "حكايا رائد",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EAF5F3",
+  "theme_color": "#336E6A",
+  "icons": [
+    {"src": "assets/icon-name-180.png", "sizes": "180x180", "type": "image/png"},
+    {"src": "assets/icon-name.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any"}
+  ]
+}
