@@ -119,7 +119,8 @@ p{margin:0}
 .bar i{display:block;height:100%;background:var(--teal)}
 
 /* reader */
-.reader-top{display:flex;align-items:center;gap:8px}
+.reader-top{display:flex;align-items:center;gap:8px;position:sticky;top:calc(var(--tbh,71px) + env(safe-area-inset-top,0px));z-index:4;background:var(--bg);margin:0 -16px;padding:8px 16px;transition:box-shadow .2s}
+.reader-top.stuck{box-shadow:0 6px 12px -8px rgba(40,30,20,.35)}
 .icon-btn{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .reader-top .ttl{flex:1;min-width:0;display:flex;flex-direction:column}
 .reader-top .ttl b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1584,4 +1585,12 @@ try{ if(sessionStorage.getItem("rh-tab-after")){ sessionStorage.removeItem("rh-t
 const hash = (location.hash||"").replace("#","");
 if(hash==="read") openReader("aja");
 else go(TABS.includes(hash) ? hash : (store.get("rh-tab") || "home"));
+
+/* keep the reader's title bar fixed under the app bar while scrolling */
+(function(){
+  const tb = document.querySelector(".topbar"), rt = document.querySelector(".reader-top");
+  const setH = () => { if(tb) document.documentElement.style.setProperty("--tbh", tb.getBoundingClientRect().height + "px"); };
+  setH(); addEventListener("resize", setH);
+  if(rt) addEventListener("scroll", () => { rt.classList.toggle("stuck", scrollY > 40); }, {passive:true});
+})();
 </script>
