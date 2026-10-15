@@ -1056,6 +1056,8 @@ function candJunk(raw, w){
   for(let i=3; i<=w.length-4; i++){ const a = w.slice(0,i), b = w.slice(i); if(b.startsWith("ال") && LEX.has(a) && !/^(ال|و|ف|ب)/.test(a) && b.length>=5 && (LEX.has(b) || LEX.has(b.slice(2)))) return true; }
   return false;
 }
+/* words that look like character names but stay in the candidates on the editor's request */
+const NAME_KEEP = new Set(["جعمكه"]);
 function buildCands(){
   if(!LEX) LEX = new Set(document.getElementById("d-lex").textContent.split(" "));
   const inGloss = glossaryKeys(), ign = new Set(DATA.ignored.map(nz));
@@ -1080,8 +1082,8 @@ function buildCands(){
     const forms = [...e.forms.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
     if(forms.some(f => inGloss.has(nz(f)))) continue;
     const isName = (speakers.get(e.key)||0)>=2 || !!(SUGG[e.key] && SUGG[e.key].a==="n");
-    if(isName) continue;   /* character names are left out of the candidates */
-    all.push({key:e.key, n:e.n, forms, word:forms[0], ex:e.ex, name:(speakers.get(e.key)||0)>=2 || !!(SUGG[e.key] && SUGG[e.key].a==="n"), ignored: ign.has(e.key) || forms.some(f => ign.has(nz(f)))});
+    if(isName && !NAME_KEEP.has(e.key)) continue;   /* character names are left out of the candidates */
+    all.push({key:e.key, n:e.n, forms, word:forms[0], ex:e.ex, name:isName && !NAME_KEEP.has(e.key), ignored: ign.has(e.key) || forms.some(f => ign.has(nz(f)))});
   }
   all.sort((a,b)=>b.n-a.n || a.key.localeCompare(b.key,"ar"));
   CAND = all;
