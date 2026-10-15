@@ -1028,7 +1028,7 @@ $("#pv-edit").addEventListener("click", () => { if(DATA.proverbs.length) openPro
 $("#pv-del").addEventListener("click", () => { if(DATA.proverbs.length) openProverbDelete(pvi); });
 
 /* ===== automatic detection of unusual words (runs locally, no AI) ===== */
-let LEX = null, CAND = null, candShown = 40, candFilter = "all";
+let CAND_EXC = null, LEX = null, CAND = null, candShown = 40, candFilter = "all";
 const nz = w => w.replace(/[ً-ٰٟـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");
 const C_PRE = ["وبال","وال","فال","بال","كال","لل","ال","و","ف","ب","ل","ك"];
 const C_SUF = ["هما","كما","هم","هن","كم","كن","نا","ها","ه","ك","ي","ين","ون","ات","ان"];
@@ -1058,6 +1058,8 @@ function candJunk(raw, w){
 }
 /* words that look like character names but stay in the candidates on the editor's request */
 const NAME_KEEP = new Set(["جعمكه"]);
+/* spelling mistakes reviewed by the editor: typos and «ىء» written for «ئ» */
+const CAND_EXCLUDE = ["بسسببً", "االعمل", "بحييث", "طويليين", "تفاجىء", "يفاجىء", "نتفاجىء", "سيفاجىء", "مُختبىء", "يختبىء", "عبىء", "يعبىء", "دافىء", "متكىء", "ممتلىء", "مضيىء", "وتنطفىء", "يطفىء", "ويهدىء", "يستهزىء", "ومستهزىء", "ويتأتىء"];
 function buildCands(){
   if(!LEX) LEX = new Set(document.getElementById("d-lex").textContent.split(" "));
   const inGloss = glossaryKeys(), ign = new Set(DATA.ignored.map(nz));
@@ -1081,6 +1083,8 @@ function buildCands(){
     if(inGloss.has(e.key)) continue;
     const forms = [...e.forms.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
     if(forms.some(f => inGloss.has(nz(f)))) continue;
+    if(!CAND_EXC) CAND_EXC = new Set(CAND_EXCLUDE.map(nz));
+    if(forms.some(f => CAND_EXC.has(nz(f)))) continue;
     const isName = (speakers.get(e.key)||0)>=2 || !!(SUGG[e.key] && SUGG[e.key].a==="n");
     if(isName && !NAME_KEEP.has(e.key)) continue;   /* character names are left out of the candidates */
     all.push({key:e.key, n:e.n, forms, word:forms[0], ex:e.ex, name:isName && !NAME_KEEP.has(e.key), ignored: ign.has(e.key) || forms.some(f => ign.has(nz(f)))});
