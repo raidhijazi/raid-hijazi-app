@@ -1048,6 +1048,14 @@ function glossaryKeys(){
   DATA.terms.forEach(t => (t.forms||[t.w]).concat([t.w]).forEach(f => { const n = nz(f); k.add(n); k.add(gkey(n)); }));
   return k;
 }
+/* leave out elongated words (هيييي) and two words glued together by a missing space (أيضاًعادت) */
+function candJunk(raw, w){
+  if(typeof SUGG!=="undefined" && SUGG[gkey(w)] && SUGG[gkey(w)].a==="t") return false;
+  if(/(.)\1\1/.test(w)) return true;
+  if(/ً(?!ا$)[ء-ي]/.test(raw)) return true;
+  for(let i=3; i<=w.length-4; i++){ const a = w.slice(0,i), b = w.slice(i); if(b.startsWith("ال") && LEX.has(a) && !/^(ال|و|ف|ب)/.test(a) && b.length>=5 && (LEX.has(b) || LEX.has(b.slice(2)))) return true; }
+  return false;
+}
 function buildCands(){
   if(!LEX) LEX = new Set(document.getElementById("d-lex").textContent.split(" "));
   const inGloss = glossaryKeys(), ign = new Set(DATA.ignored.map(nz));
@@ -1058,7 +1066,7 @@ function buildCands(){
       const sm = p.match(/^\s*([ء-يً-ْ]+)\s*:/); if(sm){ const sk = gkey(nz(sm[1])); speakers.set(sk,(speakers.get(sk)||0)+1); }
       for(const m of p.matchAll(/[ء-يً-ْٰـ]+/g)){
         const raw = m[0], w = nz(raw); if(w.length<3) continue;
-        let kn = known.get(w); if(kn===undefined){ kn = lexKnown(w); known.set(w,kn); } if(kn) continue;
+        let kn = known.get(w); if(kn===undefined){ kn = lexKnown(w) || candJunk(raw, w); known.set(w,kn); } if(kn) continue;
         const g = gkey(w);
         let e = groups.get(g); if(!e){ e = {key:g, n:0, forms:new Map(), ex:null}; groups.set(g,e); }
         e.n++; e.forms.set(raw,(e.forms.get(raw)||0)+1);
