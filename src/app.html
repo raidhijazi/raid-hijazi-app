@@ -372,7 +372,7 @@ audio{width:100%;height:40px}
           <div class="section-head"><h2>كلمات مرشّحة للمعجم</h2><span class="muted" id="cand-count"></span></div>
           <p class="muted" style="font-size:14px">كلمات وردت في الكتب ولم يجدها التطبيق في قائمة كلمات الفصحى ولا في المعجم، مرتّبة من الأكثر وروداً. أضف معنى ما يحتاج إلى شرح، واستبعد الأسماء وما لا يحتاج إلى شرح.</p>
           <label class="search" for="cand-q"><span class="sr">تصفية المرشّحات</span><input id="cand-q" type="search" placeholder="ابحث في المرشّحات…" autocomplete="off"></label>
-          <div class="chips" role="group" aria-label="عرض المرشّحات"><button class="chip" type="button" data-cf="all" aria-pressed="true">الكل</button><button class="chip" type="button" data-cf="noname" aria-pressed="false">بدون الأسماء المحتملة</button></div>
+          
           <div class="btn-row" id="cand-bulk"></div>
           <div class="list" id="cands"></div>
           <button class="btn ghost" type="button" id="cand-more" hidden>عرض المزيد</button>
@@ -1062,6 +1062,8 @@ function buildCands(){
     if(inGloss.has(e.key)) continue;
     const forms = [...e.forms.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
     if(forms.some(f => inGloss.has(nz(f)))) continue;
+    const isName = (speakers.get(e.key)||0)>=2 || !!(SUGG[e.key] && SUGG[e.key].a==="n");
+    if(isName) continue;   /* character names are left out of the candidates */
     all.push({key:e.key, n:e.n, forms, word:forms[0], ex:e.ex, name:(speakers.get(e.key)||0)>=2 || !!(SUGG[e.key] && SUGG[e.key].a==="n"), ignored: ign.has(e.key) || forms.some(f => ign.has(nz(f)))});
   }
   all.sort((a,b)=>b.n-a.n || a.key.localeCompare(b.key,"ar"));
