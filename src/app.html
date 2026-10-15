@@ -372,7 +372,7 @@ audio{width:100%;height:40px}
           <div class="section-head"><h2>كلمات مرشّحة للمعجم</h2><span class="muted" id="cand-count"></span></div>
           <p class="muted" style="font-size:14px">كلمات وردت في الكتب ولم يجدها التطبيق في قائمة كلمات الفصحى ولا في المعجم، مرتّبة من الأكثر وروداً. أضف معنى ما يحتاج إلى شرح، واستبعد الأسماء وما لا يحتاج إلى شرح.</p>
           <label class="search" for="cand-q"><span class="sr">تصفية المرشّحات</span><input id="cand-q" type="search" placeholder="ابحث في المرشّحات…" autocomplete="off"></label>
-          
+          <div class="chips" role="group" aria-label="عرض المرشّحات"><button class="chip" type="button" data-cf="all" aria-pressed="true">الكل</button><button class="chip" type="button" data-cf="strange" aria-pressed="false">الكلمات الغريبة</button></div>
           <div class="btn-row" id="cand-bulk"></div>
           <div class="list" id="cands"></div>
           <button class="btn ghost" type="button" id="cand-more" hidden>عرض المزيد</button>
@@ -1071,12 +1071,38 @@ function buildCands(){
   all.sort((a,b)=>b.n-a.n || a.key.localeCompare(b.key,"ar"));
   CAND = all;
 }
+/* «الكلمات الغريبة»: words that stay unexplained after removing affixes, dialect sound shifts and one-letter typos */
+let STRANGE = null;
+/* reviewed by hand: foreign words, plain Arabic, everyday dialect verbs, numbers and glued phrases */
+const STRANGE_SKIP = new Set(["شاالله", "قمرالدين", "حتشيتلك", "حتشيتلكوا", "حتشيتلي", "ثيرموس", "خمسطعشر", "صغيرتان", "صهيوامريكيه", "طقطقه", "مختارمثقال", "ابتسعطعشرقرش", "اتخوزقت", "اتوستراد", "اتوماتيك", "ارتطامه", "ارخصولي", "اشتهيتلك", "اصطفافها", "ايوازارو", "بتتمسخروا", "بتركتروه", "بخمسطعشر", "بضريبستان", "بطلالعجب", "بيتنجانه", "ثثتيام", "ثوانيسمح", "جهابذه", "جهدجهيد", "جههاخري", "حتشيتلتش", "حتشينالك", "حجازيشتاين", "حطيناله", "حيرهمن", "خبيراقتصادي", "خصلتان", "خصمنالك", "خظيهن", "خمستالاف", "خمسطعش", "خيرالله", "درابزين", "دسبارطور", "دصباراطور", "دهاليزهم", "دومنتبان", "ذبائح", "ذبايح", "راديتر", "زحزح", "زغروده", "زغيرعلي", "سبعطعشر", "سحرالخ", "شراذم", "صخرالزيتي", "صهيوامريكان", "طالعيتلي", "طباشير", "طباشيري", "طقطق", "عابوغفله", "عشرترطال", "غلتهن", "غوغائيه", "قزايز", "كاريدورات", "كربوريتر", "كسيمفونيه", "كلاشنكوف", "كلاشينكوف", "كويككويز", "كيكازارو", "كيموميكانيكيه", "لغهاليابانيه", "ماعزوالتبن", "مرهقتان", "مقيدتان", "نيكستلكشركويككويزوذ", "هززتم", "همبرغر", "هويقلب", "يابانيهللعربيه", "يتبحبحوا", "يتقاذفوننا", "يحتسيان", "يحتكمان", "يدغدغ", "يرصفولنا", "يزاحموه", "يضطجع", "يطقطق"]);
+function strangeSet(){
+  if(STRANGE) return STRANGE;
+  if(!LEX) LEX = new Set(document.getElementById("d-lex").textContent.split(" "));
+  const n2 = w => w.replace(/[ئ]/g,"ي").replace(/ؤ/g,"و").replace(/ء/g,"");
+  const L = new Set(); LEX.forEach(w => L.add(n2(w)));
+  const del = new Set(); L.forEach(w => { if(w.length>=3 && w.length<=11) for(let i=0;i<w.length;i++) del.add(w.slice(0,i)+w.slice(i+1)); });
+  const near = w => { if(L.has(w) || del.has(w)) return true; for(let i=0;i<w.length;i++){ const d = w.slice(0,i)+w.slice(i+1); if(L.has(d) || del.has(d)) return true; } return false; };
+  const PRE = ["وال","بال","فال","كال","لل","ال","هال","عال","و","ف","ب","ل","ك","ع","ت","ي","ن","ا","م","س"];
+  const SUF = ["هاش","وش","ها","هم","هن","كم","كن","كوا","نا","ني","وا","ات","ين","ون","تش","ه","ك","ي","ت","ا","ش","و"];
+  const stems = w => { const o = new Set([w]); for(let r=0;r<2;r++) [...o].forEach(x => { PRE.forEach(p => { if(x.startsWith(p) && x.length-p.length>=3) o.add(x.slice(p.length)); }); SUF.forEach(f => { if(x.endsWith(f) && x.length-f.length>=3) o.add(x.slice(0,-f.length)); }); }); return o; };
+  const dial = w => [w, w.replace(/تش/g,"ك"), w.replace(/ظ/g,"ض"), w.replace(/تش/g,"ك").replace(/ظ/g,"ض")];
+  STRANGE = new Set();
+  (CAND || []).forEach(c => {
+    const s = SUGG[c.key]; if(c.name || (s && (s.a==="n" || s.a==="x"))) return;
+    const w = n2(c.key); if(w.length<4 || STRANGE_SKIP.has(c.key)) return;
+    const all = []; stems(w).forEach(x => dial(x).forEach(d => all.push(d)));
+    if(all.some(x => L.has(x) || (x.length>=4 && near(x)))) return;
+    STRANGE.add(c.key);
+  });
+  return STRANGE;
+}
 function renderCands(){
   if(!CAND) buildCands();
   const q = nz(($("#cand-q").value||"").trim());
   let list = CAND.filter(c => candFilter==="ignored" ? c.ignored : !c.ignored);
   if(candFilter==="noname") list = list.filter(c => !c.name && !(SUGG[c.key] && SUGG[c.key].a==="n"));
   if(candFilter==="sugg") list = list.filter(c => SUGG[c.key] && SUGG[c.key].a==="t");
+  if(candFilter==="strange"){ const st = strangeSet(); list = list.filter(c => st.has(c.key)); }
   if(q) list = list.filter(c => c.key.includes(q) || c.forms.some(f => nz(f).includes(q)));
   const open = CAND.filter(c => !c.ignored).length;
   $("#cand-count").textContent = candFilter==="ignored" ? `${list.length} مستبعدة` : `${list.length} كلمة`;
