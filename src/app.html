@@ -206,6 +206,7 @@ audio{width:100%;height:40px}
 .install-card .ic-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .install-card .ic-body span{font-size:13.5px;color:var(--muted)}
 .install-card .btn{min-height:42px;padding:0 16px;flex-shrink:0}
+.stat-box{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:10px 14px}.stat-box b{font-size:26px;color:var(--teal);font-variant-numeric:tabular-nums}.stat-box span{font-weight:700}.stat-box small{width:100%;color:var(--muted);font-size:13px}
 .install-card .ic-x{width:34px;height:34px;flex-shrink:0}
 .ios-steps{display:flex;flex-direction:column;gap:10px;margin:0;padding-inline-start:22px;font-size:16px}
 .play-btn{display:inline-flex;align-items:center;gap:6px}
@@ -293,6 +294,7 @@ audio{width:100%;height:40px}
     <!-- HOME -->
     <section class="view" id="view-home" aria-label="الرئيسية">
       <div class="section" style="gap:22px">
+        <div class="stat-box" id="ed-installs" hidden aria-live="polite"><b id="ed-inst-n">…</b><span id="ed-inst-t">عدد مرات تنزيل التطبيق</span><small id="ed-inst-d"></small></div>
         <div class="install-card" data-install-card hidden><img src="assets/icon-192.png?v=2" alt="" width="48" height="48"><div class="ic-body"><b>نزّل التطبيق على جهازك</b><span>ليظهر على الشاشة الرئيسية ويُفتح بلمسة واحدة.</span></div><button class="btn" type="button" data-install>تنزيل</button><button class="icon-btn ic-x" type="button" data-install-x aria-label="إخفاء">×</button></div>
         <article class="proverb" aria-live="polite">
           <div class="eyebrow"><span>مثلٌ اليوم</span><span id="pv-date"></span></div>
@@ -1503,8 +1505,15 @@ $("#vids").addEventListener("click", e => {
   const dl = e.target.closest("[data-vdel]"); if(dl) openVideoDelete(Number(dl.dataset.vdel));
 });
 /* editor mode: tap the rights line in «عن الكاتب» five times, then sign in with the editor account */
-function enableEditor(){ CAN_EDIT = true; $("#ed-tools").hidden = false; setTimeout(renderFather, 0); $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
-function disableEditor(){ CAN_EDIT = false; ART = null; $("#ed-tools").hidden = true; setTimeout(renderFather, 0); $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+async function loadInstallStats(){
+  const box = $("#ed-installs"); if(!box) return; box.hidden = false;
+  const sb = await waitSB(); let r = null; try{ r = sb ? await sb.rpc("install_stats") : null; }catch(e){}
+  if(!r || r.error || !r.data){ $("#ed-inst-n").textContent = "—"; $("#ed-inst-d").textContent = r && r.error && /install_stats|function/i.test(r.error.message) ? "لم يُفعَّل العدّاد بعد: شغّل ملف installs.sql مرة واحدة في Supabase." : "تعذّر جلب العدد الآن."; return; }
+  const d = r.data; $("#ed-inst-n").textContent = d.total;
+  $("#ed-inst-d").textContent = `أندرويد ${d.android} · آيفون ${d.ios} · حاسوب ${d.desktop} · هذا الأسبوع ${d.week}`;
+}
+function enableEditor(){ CAN_EDIT = true; loadInstallStats(); $("#ed-tools").hidden = false; setTimeout(renderFather, 0); $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function disableEditor(){ CAN_EDIT = false; ART = null; if($("#ed-installs")) $("#ed-installs").hidden = true; $("#ed-tools").hidden = true; setTimeout(renderFather, 0); $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
 function openLogin(){
   const sh = $("#sheet");
   sh.innerHTML = `<form class="sheet" id="lg" role="dialog" aria-modal="true" aria-labelledby="lg-h" novalidate>
@@ -1608,7 +1617,14 @@ function dedHtml(){ const f = father(); if(!f.photos.length) return ""; return `
     sh.hidden = false;
   }
   window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; refresh(); });
-  window.addEventListener("appinstalled", () => { deferred = null; refresh(); toast("نُزّل التطبيق على جهازك"); });
+  /* count each device that installs the app once (anonymous random id, kept on the device) */
+  function recordInstall(){
+    let id = null; try{ if(localStorage.getItem("rh-inst-ok")==="1") return; id = localStorage.getItem("rh-inst-id"); if(!id){ id = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2)); localStorage.setItem("rh-inst-id", id); } }catch(e){ return; }
+    const platform = isIOS ? "ios" : /android/i.test(ua) ? "android" : /windows|macintosh|linux|cros/i.test(ua) ? "desktop" : "other";
+    waitSB(15000).then(sb => sb && sb.from("installs").insert({device: id, platform})).then(r => { if(r && (!r.error || /duplicate|23505/i.test((r.error.code||"")+r.error.message))){ try{ localStorage.setItem("rh-inst-ok","1"); }catch(e){} } }).catch(() => {});
+  }
+  window.addEventListener("appinstalled", () => { deferred = null; refresh(); toast("نُزّل التطبيق على جهازك"); recordInstall(); });
+  if(standalone()) setTimeout(recordInstall, 3000);
   document.addEventListener("click", async e => {
     if(e.target.closest("[data-install-x]")){ try{ localStorage.setItem("rh-install-x","1"); }catch(err){} refresh(); return; }
     if(!e.target.closest("[data-install]")) return;
