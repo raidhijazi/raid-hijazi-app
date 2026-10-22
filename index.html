@@ -467,6 +467,7 @@ audio{width:100%;height:40px}
         <button class="btn" type="button" data-install data-install-about hidden>تنزيل التطبيق على هذا الجهاز</button>
         <div class="btn-row" id="ed-tools" hidden><button class="btn ghost" type="button" id="pw-change">تغيير كلمة مرور المحرّر</button><button class="btn ghost" type="button" id="ed-out">خروج من وضع المحرّر</button></div>
         <p class="muted" id="copyline" style="font-size:13px;text-align:center;user-select:none">جميع الحقوق محفوظة للكاتب رائد عبدالرحمن حجازي</p>
+        <p style="font-size:13px;text-align:center;margin:0"><a href="privacy.html">سياسة الخصوصية</a></p>
       </div>
     </section>
   </main>
@@ -1664,6 +1665,9 @@ try{ if(sessionStorage.getItem("rh-tab-after")){ sessionStorage.removeItem("rh-t
 const hash = (location.hash||"").replace("#","");
 if(hash==="read") openReader("aja");
 else go(TABS.includes(hash) ? hash : (store.get("rh-tab") || "home"));
+
+/* offline support and installability: register the service worker (sw.js) */
+if("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
 
 /* keep the reader's title bar fixed under the app bar while scrolling */
 (function(){
