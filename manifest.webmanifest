@@ -1,11 +1,13 @@
 {
   "name": "حكايا رائد حجازي",
   "short_name": "حكايا رائد",
+  "description": "كتب الكاتب رائد عبدالرحمن حجازي في التراث الأردني، مع معجم المفردات التراثية ومثل اليوم والتسجيلات الصوتية والفيديوهات.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#EAF5F3",
   "theme_color": "#336E6A",
   "icons": [
@@ -28,5 +30,48 @@
       "purpose": "maskable"
     }
   ],
-  "id": "./"
+  "id": "./",
+  "categories": [
+    "books",
+    "education",
+    "entertainment"
+  ],
+  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "assets/screens/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "الصفحة الرئيسية ومثل اليوم"
+    },
+    {
+      "src": "assets/screens/library.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "مكتبة الكاتب"
+    },
+    {
+      "src": "assets/screens/glossary.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "معجم التراث"
+    },
+    {
+      "src": "assets/screens/reader.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "قراءة الكتب داخل التطبيق"
+    },
+    {
+      "src": "assets/screens/about.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "عن الكاتب"
+    }
+  ]
 }
