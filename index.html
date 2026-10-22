@@ -279,7 +279,7 @@ audio{width:100%;height:40px}
 }
 
 /* library and books: no text selection or copying for readers (the editor keeps it) */
-body:not(.can-edit) #view-library, body:not(.can-edit) #view-reader{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body:not(.can-edit) #view-library, body:not(.can-edit) #view-reader, body:not(.can-edit) #view-library *, body:not(.can-edit) #view-reader *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body:not(.can-edit) #view-library :is(input,textarea,[contenteditable]), body:not(.can-edit) #view-reader :is(input,textarea,[contenteditable]){-webkit-user-select:text;user-select:text}
 </style>
 <div class="splash" id="splash" dir="rtl" lang="ar" role="img" aria-label="حكايا رائد حجازي">
@@ -1591,6 +1591,13 @@ document.addEventListener("click", async e => {
     const t = e.target && e.target.nodeType === 3 ? e.target.parentElement : e.target;
     if(guarded(t)) e.preventDefault();
   }, true));
+  /* belt and braces for phones: drop any selection that lands inside the protected views */
+  document.addEventListener("selectionchange", () => {
+    if(CAN_EDIT) return; const sel = window.getSelection && getSelection(); if(!sel || sel.isCollapsed || !sel.rangeCount) return;
+    const n = sel.anchorNode, el = n && (n.nodeType === 3 ? n.parentElement : n);
+    const f = sel.focusNode, fl = f && (f.nodeType === 3 ? f.parentElement : f);
+    if(guarded(el) || guarded(fl)) sel.removeAllRanges();
+  });
 })();
 let taps = 0, tapTimer = null;
 $("#copyline").addEventListener("click", async () => {
