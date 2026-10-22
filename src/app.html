@@ -260,6 +260,10 @@ audio{width:100%;height:40px}
   @keyframes lgShine{from{left:-60%}to{left:120%}}
   @keyframes lgLift{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
 }
+
+/* library and books: no text selection or copying for readers (the editor keeps it) */
+body:not(.can-edit) #view-library, body:not(.can-edit) #view-reader{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body:not(.can-edit) #view-library :is(input,textarea,[contenteditable]), body:not(.can-edit) #view-reader :is(input,textarea,[contenteditable]){-webkit-user-select:text;user-select:text}
 </style>
 <div class="splash" id="splash" dir="rtl" lang="ar" role="img" aria-label="حكايا رائد حجازي">
   <img class="sp-photo" src="__PHOTO__" alt="">
@@ -1513,8 +1517,8 @@ async function loadInstallStats(){
   const d = r.data, hasV = d.visitors != null; $("#ed-inst-n").textContent = d.total; $("#ed-vis-n").textContent = hasV ? d.visitors : "—";
   $("#ed-inst-d").textContent = (hasV ? `زوار هذا الأسبوع ${d.visitors_week} · ` : "عدّاد الزوار غير مفعّل: شغّل ملف visits.sql في Supabase. · ") + `التثبيت: أندرويد ${d.android} · آيفون ${d.ios} · حاسوب ${d.desktop} · هذا الأسبوع ${d.week}`;
 }
-function enableEditor(){ CAN_EDIT = true; loadInstallStats(); $("#ed-tools").hidden = false; setTimeout(renderFather, 0); $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
-function disableEditor(){ CAN_EDIT = false; ART = null; if($("#ed-installs")) $("#ed-installs").hidden = true; $("#ed-tools").hidden = true; setTimeout(renderFather, 0); $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function enableEditor(){ CAN_EDIT = true; document.body.classList.add("can-edit"); loadInstallStats(); $("#ed-tools").hidden = false; setTimeout(renderFather, 0); $("#term-add").hidden = false; $("#pv-tools").hidden = false; $("#cand-open").hidden = false; renderTerms(); renderPendingBar(); renderVideos(); if(!$("#view-reader").hidden && RD.book) showStory(); }
+function disableEditor(){ CAN_EDIT = false; document.body.classList.remove("can-edit"); ART = null; if($("#ed-installs")) $("#ed-installs").hidden = true; $("#ed-tools").hidden = true; setTimeout(renderFather, 0); $("#term-add").hidden = true; $("#pv-tools").hidden = true; $("#cand-open").hidden = true; $("#cand-wrap").hidden = true; renderVideos(); renderTerms(); renderPendingBar(); if(!$("#view-reader").hidden && RD.book) showStory(); }
 function openLogin(){
   const sh = $("#sheet");
   sh.innerHTML = `<form class="sheet" id="lg" role="dialog" aria-modal="true" aria-labelledby="lg-h" novalidate>
@@ -1562,6 +1566,15 @@ document.addEventListener("click", async e => {
   if(e.target.closest("#pw-change")){ openPwChange(); return; }
   if(e.target.closest("#ed-out")){ try{ const sb = await waitSB(3000); if(sb) await sb.auth.signOut(); }catch(err){} disableEditor(); toast("خرجتَ من وضع المحرّر"); }
 });
+
+/* block copying from the library and the books for readers; the editor and form fields are unaffected */
+(function(){
+  const guarded = t => !CAN_EDIT && t && t.closest && t.closest("#view-library, #view-reader") && !t.closest("input, textarea, [contenteditable]");
+  ["copy","cut","contextmenu","selectstart","dragstart"].forEach(ev => document.addEventListener(ev, e => {
+    const t = e.target && e.target.nodeType === 3 ? e.target.parentElement : e.target;
+    if(guarded(t)) e.preventDefault();
+  }, true));
+})();
 let taps = 0, tapTimer = null;
 $("#copyline").addEventListener("click", async () => {
   taps++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { taps = 0; }, 2500);
