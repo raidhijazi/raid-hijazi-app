@@ -1,8 +1,11 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.raidhijazi.app",
-        "sha256_cert_fingerprints": ["B9:EA:6C:93:9E:EF:BE:0F:EF:A5:27:AC:AF:2B:B9:53:64:46:CB:75:8F:09:8D:C3:4B:23:F2:30:A3:8B:2F:7C"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.raidhijazi.app",
+    "sha256_cert_fingerprints": [
+      "F0:B9:29:14:FC:F5:76:9D:24:96:FA:03:C2:F9:10:FC:AD:46:E4:65:AF:65:E7:1A:8F:9D:50:75:1A:D0:1C:E5",
+      "B9:EA:6C:93:9E:EF:BE:0F:EF:A5:27:AC:AF:2B:B9:53:64:46:CB:75:8F:09:8D:C3:4B:23:F2:30:A3:8B:2F:7C"
+    ]
+  }
+}]
