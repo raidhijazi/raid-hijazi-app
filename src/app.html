@@ -602,6 +602,7 @@ function closeSheet(){ if(REC.on){ try{ REC.mr.onstop = null; REC.mr.stop(); }ca
 let termCat = "all";
 const norm = s => s.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/^ال/,"").trim().toLowerCase();
 function renderTerms(){
+  { const tt = $("#tile-terms"); if(tt) tt.textContent = DATA.terms.length + " مفردة تراثية"; }
   $("#term-chips").innerHTML = TERM_CATS.map(([id,l]) => `<button class="chip" type="button" data-tcat="${id}" aria-pressed="${id===termCat}">${l}</button>`).join("");
   const q = norm($("#q").value || "");
   const list = DATA.terms.filter(t => (termCat==="all"||t.cat===termCat) && (!q || norm(t.w).includes(q) || norm(t.d).includes(q) || t.en.toLowerCase().includes(q)))
