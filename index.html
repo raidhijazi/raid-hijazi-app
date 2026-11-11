@@ -844,6 +844,33 @@ function go(tab){
 }
 document.addEventListener("click", e => { const t = e.target.closest("[data-tab],[data-go]"); if(t) go(t.dataset.tab || t.dataset.go); });
 
+/* phone back button: step back through the app's own screens instead of leaving the app.
+   Order: open sheet -> glossary popup -> reader contents list -> reader -> any other tab -> home.
+   Only from the home screen with nothing open does the button leave the app. */
+function backStep(){
+  if(!$("#sheet").hidden){ closeSheet(); return true; }
+  if(!$("#pop").hidden){ closePop(); return true; }
+  if(!$("#view-reader").hidden){
+    if(!$("#rd-toc").hidden) showStory(); else go(RD.from || "library");
+    return true;
+  }
+  const cur = TABS.find(t => !$("#view-"+t).hidden);
+  if(cur && cur !== "home"){ go("home"); return true; }
+  return false;
+}
+(function(){
+  if(!window.history || !history.pushState) return;
+  /* keep one extra history entry on top, so the back button always fires popstate inside the app first */
+  if(!(history.state && history.state.rh === 1)){
+    history.replaceState({rh:0}, "");
+    history.pushState({rh:1}, "");
+  }
+  addEventListener("popstate", () => {
+    if(backStep()) history.pushState({rh:1}, "");
+    else history.back();   /* nothing left to close: let the app exit */
+  });
+})();
+
 /* ===== glossary editing (only for people who can edit this app) ===== */
 function toast(msg){
   const t = document.createElement("div"); t.className = "toast"; t.dir = "rtl"; t.setAttribute("role","status"); t.textContent = msg;
