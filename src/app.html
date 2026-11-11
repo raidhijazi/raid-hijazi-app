@@ -114,6 +114,7 @@ p{margin:0}
 
 /* continue-reading card */
 .cont{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;cursor:pointer;width:100%;text-align:start}
+.cont-list{display:flex;flex-direction:column;gap:10px}
 .cont .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--teal)}
@@ -320,7 +321,7 @@ body:not(.can-edit) #view-library :is(input,textarea,[contenteditable]), body:no
 
         <div class="section">
           <h2 id="cont-h">اقرأ الآن</h2>
-          <button class="cont" type="button" id="cont"></button>
+          <div class="cont-list" id="cont"></div>
         </div>
 
         <div class="section">
@@ -744,7 +745,7 @@ function showStory(){
   $("#rd-prev").textContent = b.unit==="فصل" ? "الفصل السابق" : "القصة السابقة";
   const last = RD.i===stories.length-1;
   $("#rd-next").textContent = last ? "العودة إلى الفهرس" : (isIntro ? `ابدأ ${unitWord} الأولى`.replace("ابدأ الفصل الأولى","ابدأ الفصل الأول") : (b.unit==="فصل" ? "الفصل التالي" : "القصة التالية"));
-  const p = getProg(id); p.i = RD.i; if(!p.read.includes(RD.i)) p.read.push(RD.i); setProg(id, p);
+  const p = getProg(id); p.i = RD.i; if(!p.read.includes(RD.i)) p.read.push(RD.i); setProg(id, p); touchRecent(id);
   $("#rd-toc").hidden = true; $("#rd-story-wrap").hidden = false;
   closePop(); renderCont();
   const firstMark = hl ? $("#rd-story mark") : null;
@@ -777,23 +778,36 @@ $("#pop").addEventListener("click", e => { if(e.target.closest("#pop-x")) closeP
 document.addEventListener("click", e => { const b = e.target.closest("[data-tplay]"); if(!b) return; const t = DATA.terms[Number(b.dataset.tplay)]; if(t && t.audio) playAudio(t.audio); });
 function closePop(){ $("#pop").hidden = true; }
 
-/* home: continue reading */
-function renderCont(){
-  let id = store.get("rh-last"); if(!BOOK_TEXT[id]) id = "aja";
+/* home: continue reading (up to two books in progress, most recent first) */
+const MAX_RECENT = 2;
+function getRecent(){
+  let r = []; try{ r = JSON.parse(store.get("rh-recent")) || []; }catch(e){}
+  if(!Array.isArray(r)) r = [];
+  if(!r.length){ const l = store.get("rh-last"); if(l && BOOK_TEXT[l] && getProg(l).read.length) r = [l]; }
+  return r.filter(id => BOOK_TEXT[id] && getProg(id).read.length).slice(0, MAX_RECENT);
+}
+function touchRecent(id){
+  const r = [id].concat(getRecent().filter(x => x!==id)).slice(0, MAX_RECENT);
+  store.set("rh-recent", JSON.stringify(r));
+}
+function contCard(id){
   const stories = BOOK_TEXT[id], p = getProg(id), b = bookOf(id);
   const started = p.read.length > 0;
   const done = p.read.filter(i => !(hasIntro(id) && i===0)).length, total = storyCount(id);
   const s = stories[started ? p.i : firstIx(id)];
   const readable = DATA.books.filter(x=>x.readable).length;
-  $("#cont-h").textContent = started ? "تابع القراءة" : "اقرأ الآن";
-  $("#cont").dataset.book = id;
-  $("#cont").innerHTML = `${coverHtml(b)}
+  return `<button class="cont" type="button" data-book="${id}">${coverHtml(b)}
     <span class="body"><b>${started ? esc(s.title) : esc(b.title)}</b>
     <small class="muted">${started ? "من كتاب " + esc(b.title) : readable + " كتب كاملة للقراءة داخل التطبيق"}</small>
     <span class="bar" aria-hidden="true"><i style="width:${Math.round(done/total*100)}%"></i></span>
-    <small class="muted">${done ? "قرأت " + done + " من " + total : "ابدأ بـ: " + esc(stories[firstIx(id)].title)}</small></span>`;
+    <small class="muted">${done ? "قرأت " + done + " من " + total : "ابدأ بـ: " + esc(stories[firstIx(id)].title)}</small></span></button>`;
 }
-$("#cont").addEventListener("click", e => openReader(e.currentTarget.dataset.book || "aja"));
+function renderCont(){
+  const ids = getRecent();
+  $("#cont-h").textContent = ids.length ? "تابع القراءة" : "اقرأ الآن";
+  $("#cont").innerHTML = (ids.length ? ids : ["aja"]).map(contCard).join("");
+}
+$("#cont").addEventListener("click", e => { const c = e.target.closest(".cont"); if(c) openReader(c.dataset.book || "aja"); });
 
 /* navigation */
 const TABS = ["home","library","glossary","videos","about"];
