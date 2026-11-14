@@ -3,7 +3,7 @@ import base64, json, re, os
 here = os.path.dirname(os.path.abspath(__file__)); os.chdir(here)
 ld = lambda p: json.load(open(p, encoding='utf-8'))
 B = {}
-for key, f in [('shatharat1','shatharat1'),('shatharat2','shatharat2'),('aja','aja'),('anwar','anwar'),('anwar-en','anwar_en'),('khurbut','khurbut'),('darebestan','darebestan')]:
+for key, f in [('shatharat1','shatharat1'),('shatharat2','shatharat2'),('aja','aja'),('anwar','anwar'),('anwar-en','anwar_en'),('khurbut','khurbut'),('darebestan','darebestan'),('kharmanji','kharmanji')]:
     B[key] = ld('data/books/%s.json' % f)
 j = lambda x: json.dumps(x, ensure_ascii=False, separators=(',',':')).replace('<','\\u003c')
 b64 = lambda p, m: 'data:%s;base64,%s' % (m, base64.b64encode(open(p,'rb').read()).decode())
